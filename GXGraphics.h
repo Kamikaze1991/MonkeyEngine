@@ -46,5 +46,6 @@ private:
 
 public:
 	void initialize();
+	void buildDescriptorHeaps();
 };
 #endif
