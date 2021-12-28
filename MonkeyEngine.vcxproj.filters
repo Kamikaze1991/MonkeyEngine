@@ -16,10 +16,19 @@
     <ClInclude Include="GXGraphics.h">
       <Filter>Common\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="GXTools.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="GXException.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GXGraphics.cpp">
       <Filter>Common\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="GXException.cpp">
+      <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
