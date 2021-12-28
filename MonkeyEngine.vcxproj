@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="GXGraphics.h" />
+    <ClInclude Include="GXTools.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GXGraphics.cpp" />

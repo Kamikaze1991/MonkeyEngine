@@ -16,6 +16,9 @@
     <ClInclude Include="GXGraphics.h">
       <Filter>Common\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="GXTools.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GXGraphics.cpp">
