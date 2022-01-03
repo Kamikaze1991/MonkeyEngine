@@ -42,8 +42,15 @@ private:
 	ComPtr<ID3D12Resource> mSwapChainBuffer[mBufferCount];
 	ComPtr<ID3D12Resource> mDepthStencilBuffer;
 
+	UINT mClientWidth=800;
+	UINT mCLientHeight=600;
+	DXGI_FORMAT mGraphicFormat = DXGI_FORMAT_R8G8B8A8_SNORM;
+	bool mWindowed = true;
+	HWND mMainHwnd = 0;
+
 public:
 	void initialize();
 	void buildDescriptorHeaps();
+	void buildSwapChain();
 };
 #endif
