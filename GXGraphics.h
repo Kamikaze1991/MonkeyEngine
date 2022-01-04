@@ -30,9 +30,9 @@ private:
 	/// </summary>
 	ComPtr<ID3D12DescriptorHeap> mRtvHeap;
 	ComPtr<ID3D12DescriptorHeap> mDsvHeap;
-	UINT mRtvHeapSiz = 0;
+	UINT mRtvHeapSize = 0;
 	UINT mDsvHeapSize = 0;
-	UINT mCbvUavSrv = 0;
+	UINT mCbvUavSrvSize = 0;
 
 	/// <summary>
 	/// Resources
@@ -42,6 +42,9 @@ private:
 	ComPtr<ID3D12Resource> mSwapChainBuffer[mBufferCount];
 	ComPtr<ID3D12Resource> mDepthStencilBuffer;
 
+	/// <summary>
+	/// Some important structures
+	/// </summary>
 	UINT mClientWidth=800;
 	UINT mCLientHeight=600;
 	DXGI_FORMAT mGraphicFormat = DXGI_FORMAT_R8G8B8A8_SNORM;
@@ -52,5 +55,12 @@ public:
 	void initialize();
 	void buildDescriptorHeaps();
 	void buildSwapChain();
+
+	//log control
+	void graphicsLog();
+	void logAdapterOutputs(IDXGIAdapter* _adapter);
+	void logOutputDisplayMode(IDXGIOutput* _output, DXGI_FORMAT _format);
+
+
 };
 #endif

@@ -5,6 +5,7 @@
 #include <dxgi1_4.h>
 #include <wrl.h>
 #include <string>
+#include <vector>
 #include "GXException.h"
 
 /// <summary>
@@ -26,6 +27,10 @@ inline std::wstring AnsiToWString(const std::string& str)
     if(FAILED(hr__)) { throw GXException(hr__, L#x, wfn, __LINE__); } \
 }
 
+#endif
+
+#ifndef ReleaseCom
+#define ReleaseCom(x) { if(x){ x->Release(); x = 0; } }
 #endif
 
 
