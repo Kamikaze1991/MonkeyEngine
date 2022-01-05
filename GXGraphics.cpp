@@ -1,9 +1,18 @@
 #include "GXGraphics.h"
 
+GXGraphics::GXGraphics(HWND hwnd, bool windowed, UINT width, UINT height)
+{
+	mMainHwnd = hwnd;
+	mClientWidth = width;
+	mCLientHeight = height;
+	mWindowed = windowed;
+}
+
 /// <summary>
 /// Begin of the Graphics Fun
 /// </summary>
-void GXGraphics::initialize()
+/// <returns>true or false</returns>
+bool GXGraphics::initialize()
 {
 	///enable debug layer
 #if defined(DEBUG)||defined(_DEBUG)
@@ -36,10 +45,12 @@ void GXGraphics::initialize()
 	graphicsLog();
 #endif
 
-
-
-
-
+	/// <summary>
+	/// builders
+	/// </summary>
+	buildCommandObjects();
+	buildSwapChain();
+	buildDescriptorHeaps();
 }
 
 /// <summary>
@@ -49,7 +60,7 @@ void GXGraphics::buildDescriptorHeaps()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC mRtvHeapDesc = {};
 	mRtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	mRtvHeapDesc.NumDescriptors = mFenceCount;
+	mRtvHeapDesc.NumDescriptors = mBufferCount;
 	mRtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	GXManageException(mDevice->CreateDescriptorHeap(&mRtvHeapDesc, IID_PPV_ARGS(mDsvHeap.GetAddressOf())))
 
@@ -88,6 +99,22 @@ void GXGraphics::buildSwapChain()
 	sc.OutputWindow = mMainHwnd;
 	sc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	GXManageException(mFactory->CreateSwapChain(mDevice.Get(), &sc, mSwapChain.GetAddressOf()));
+}
+
+/// <summary>
+/// Build Commands Components
+/// </summary>
+void GXGraphics::buildCommandObjects()
+{
+	///crerar los 2 commands
+	D3D12_COMMAND_QUEUE_DESC commandQueueDesc = {};
+	commandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+	commandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+	GXManageException(mDevice->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(mCommandQueue.GetAddressOf())));
+
+	GXManageException(mDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(mCommandAllocator.GetAddressOf())));
+	GXManageException(mDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, mCommandAllocator.Get(), nullptr, IID_PPV_ARGS(mCommandList.GetAddressOf())));
+	mCommandList->Close();
 }
 
 /// <summary>

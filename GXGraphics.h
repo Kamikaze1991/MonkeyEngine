@@ -2,6 +2,11 @@
 #define _GXGRAPHICS_H_
 #include "GXTools.h"
 
+#pragma comment(lib,"d3dcompiler.lib")
+#pragma comment(lib, "D3D12.lib")
+#pragma comment(lib, "dxgi.lib")
+
+
 using namespace Microsoft::WRL;
 class GXGraphics {
 private:
@@ -52,9 +57,12 @@ private:
 	HWND mMainHwnd = 0;
 
 public:
-	void initialize();
+	GXGraphics(HWND hwnd, bool windowed, UINT width, UINT height);
+	bool initialize();
 	void buildDescriptorHeaps();
 	void buildSwapChain();
+	void buildCommandObjects();
+	
 
 	//log control
 	void graphicsLog();
