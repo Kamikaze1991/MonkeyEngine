@@ -22,6 +22,9 @@
     <ClInclude Include="GXException.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="d3dx12.h">
+      <Filter>Common\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GXGraphics.cpp">

@@ -58,7 +58,7 @@ private:
 
 public:
 	GXGraphics(HWND hwnd, bool windowed, UINT width, UINT height);
-	bool initialize();
+	void initialize();
 	void buildDescriptorHeaps();
 	void buildSwapChain();
 	void buildCommandObjects();

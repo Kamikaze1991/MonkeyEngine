@@ -11,8 +11,7 @@ GXGraphics::GXGraphics(HWND hwnd, bool windowed, UINT width, UINT height)
 /// <summary>
 /// Begin of the Graphics Fun
 /// </summary>
-/// <returns>true or false</returns>
-bool GXGraphics::initialize()
+void GXGraphics::initialize()
 {
 	///enable debug layer
 #if defined(DEBUG)||defined(_DEBUG)
