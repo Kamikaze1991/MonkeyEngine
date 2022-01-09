@@ -43,7 +43,7 @@ private:
 	/// Resources
 	/// </summary>
 	static const int mBufferCount = 2;
-	int mCurrFrame=0;
+	int mCurrBackBuffer=0;
 	ComPtr<ID3D12Resource> mSwapChainBuffer[mBufferCount];
 	ComPtr<ID3D12Resource> mDepthStencilBuffer;
 
@@ -69,6 +69,18 @@ public:
 	void logAdapterOutputs(IDXGIAdapter* _adapter);
 	void logOutputDisplayMode(IDXGIOutput* _output, DXGI_FORMAT _format);
 
+	//magic actions
+	void flushQueue();
+	void rebuildTarget();
+
+
+
+	//configs
+	void setScreenSize(UINT width, UINT height);
+	UINT getWidth();
+	UINT getHeight();
+	ComPtr<ID3D12GraphicsCommandList> getCommandList();
+	ComPtr<ID3D12Device> getDevice();
 
 };
 #endif

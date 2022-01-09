@@ -192,3 +192,71 @@ void GXGraphics::logOutputDisplayMode(IDXGIOutput* _output, DXGI_FORMAT _format)
 
 
 }
+
+/// <summary>
+/// command queue flusher
+/// </summary>
+void GXGraphics::flushQueue()
+{
+	mFenceCount++;
+	GXManageException(mCommandQueue->Signal(mFence.Get(), mFenceCount));
+
+	if (mFence->GetCompletedValue() < mFenceCount) {
+		HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
+		if (!eventHandle)
+			return;
+		GXManageException(mFence->SetEventOnCompletion(mFenceCount, eventHandle));
+		WaitForSingleObject(eventHandle, INFINITE);
+		CloseHandle(eventHandle);
+	}
+	mFence->GetCompletedValue();
+}
+
+void GXGraphics::rebuildTarget()
+{
+	assert(mDevice);
+	assert(mSwapChain);
+	assert(mCommandList);
+
+	//reseteadores
+	flushQueue();
+	mCommandList->Reset(mCommandAllocator.Get(), nullptr);
+	for (int i = 0; i < mBufferCount; i++)
+		mSwapChainBuffer[i].Reset();
+	mDepthStencilBuffer.Reset();
+	mSwapChain->ResizeBuffers(mBufferCount, mClientWidth, mCLientHeight, mGraphicFormat, 0);
+	mCurrBackBuffer = 0;
+
+
+
+
+
+}
+
+void GXGraphics::setScreenSize(UINT width, UINT height)
+{
+	if (width > 0)
+		mClientWidth = width;
+	if (height > 0)
+		mCLientHeight = height;
+}
+
+UINT GXGraphics::getWidth()
+{
+	return mClientWidth;
+}
+
+UINT GXGraphics::getHeight()
+{
+	return mCLientHeight;
+}
+
+ComPtr<ID3D12GraphicsCommandList> GXGraphics::getCommandList()
+{
+	return mCommandList.Get();
+}
+
+ComPtr<ID3D12Device> GXGraphics::getDevice()
+{
+	return mDevice.Get();
+}
