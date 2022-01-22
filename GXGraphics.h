@@ -50,11 +50,14 @@ private:
 	/// <summary>
 	/// Some important structures
 	/// </summary>
-	UINT mClientWidth=800;
-	UINT mCLientHeight=600;
+	int mClientWidth=800;
+	int mCLientHeight=600;
 	DXGI_FORMAT mGraphicFormat = DXGI_FORMAT_R8G8B8A8_SNORM;
+	DXGI_FORMAT mDepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	bool mWindowed = true;
 	HWND mMainHwnd = 0;
+	D3D12_VIEWPORT mViewPort;
+	D3D12_RECT mScissorRect;
 
 public:
 	GXGraphics(HWND hwnd, bool windowed, UINT width, UINT height);

@@ -227,10 +227,68 @@ void GXGraphics::rebuildTarget()
 	mSwapChain->ResizeBuffers(mBufferCount, mClientWidth, mCLientHeight, mGraphicFormat, 0);
 	mCurrBackBuffer = 0;
 
+	/// <summary>
+	/// create render target view
+	/// </summary>
+	CD3DX12_CPU_DESCRIPTOR_HANDLE mRtvHandle(mRtvHeap->GetCPUDescriptorHandleForHeapStart());
+	for (int i = 0; i < mBufferCount; i++) {
+		GXManageException(mSwapChain->GetBuffer(i, IID_PPV_ARGS(mSwapChainBuffer[i].GetAddressOf())));
+		mDevice->CreateRenderTargetView(mSwapChainBuffer[i].Get(), nullptr, mRtvHandle);
+		mRtvHandle.Offset(1, mRtvHeapSize);
+	}
+
+	/// <summary>
+	/// create depth stencil view
+	/// </summary>
+	
 
 
+	/// 1- create a rv resource description
+	D3D12_RESOURCE_DESC dsvResourceDesc = {};
+	dsvResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	dsvResourceDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
+	dsvResourceDesc.MipLevels = 1;
+	dsvResourceDesc.DepthOrArraySize = 1;
+	dsvResourceDesc.Alignment = 0;
+	dsvResourceDesc.Width = mClientWidth;
+	dsvResourceDesc.Height = mCLientHeight;
+	
+	dsvResourceDesc.SampleDesc.Count = 1;
+	dsvResourceDesc.SampleDesc.Quality = 0;
+	dsvResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+	dsvResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	
 
+	/// 2- create d3d clear parameters
+	D3D12_CLEAR_VALUE optClear;
+	optClear.DepthStencil.Depth = 1.0f;
+	optClear.DepthStencil.Stencil = 1;
+	optClear.Format = mDepthStencilFormat;
 
+	GXManageException(mDevice->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &dsvResourceDesc, D3D12_RESOURCE_STATE_COMMON, &optClear, IID_PPV_ARGS(mDepthStencilBuffer.GetAddressOf())));
+
+	//3- create desc view
+	D3D12_DEPTH_STENCIL_VIEW_DESC dsv;
+	dsv.Flags = D3D12_DSV_FLAG_NONE;
+	dsv.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+	dsv.Format = mDepthStencilFormat;
+	dsv.Texture2D.MipSlice = 0;
+	mDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), &dsv, mDsvHeap->GetCPUDescriptorHandleForHeapStart());
+
+	//4-change status common to dept stencil
+	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mDepthStencilBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+
+	mCommandList->Close();
+	ID3D12CommandList* commandList[] = { mCommandList.Get() };
+	mCommandQueue->ExecuteCommandLists(_countof(commandList), commandList);
+	flushQueue();
+	mViewPort.Height = mCLientHeight;
+	mViewPort.Width = mClientWidth;
+	mViewPort.MinDepth = 0.0f;
+	mViewPort.MaxDepth = 1.0f;
+	mViewPort.TopLeftX = 0;
+	mViewPort.TopLeftY = 0;
+	mScissorRect = { 0,0,mClientWidth,mCLientHeight };
 }
 
 void GXGraphics::setScreenSize(UINT width, UINT height)
