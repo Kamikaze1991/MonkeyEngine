@@ -1,4 +1,5 @@
 "# MonkeyEngine" 
+Estructura basica de un proyecto de inicio en visual C++ para poder implementar un proyecto nuevo
 ````
 ```
 <?xml version="1.0" encoding="utf-8"?>
