@@ -5,9 +5,13 @@
     <ClCompile Include="Common\CoreSystem.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="Common\CoreGraphics.cpp" />
-    <ClCompile Include="Common\CoreException.cpp" />
     <ClCompile Include="Crate.cpp" />
+    <ClCompile Include="Common\CoreException.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\CoreGraphics.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Common">
@@ -18,9 +22,15 @@
     <ClInclude Include="Common\CoreSystem.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="Common\CoreUtil.h" />
-    <ClInclude Include="Common\CoreGraphics.h" />
     <ClInclude Include="Crate.h" />
-    <ClInclude Include="Common\CoreException.h" />
+    <ClInclude Include="Common\CoreException.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\CoreGraphics.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\CoreUtil.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
