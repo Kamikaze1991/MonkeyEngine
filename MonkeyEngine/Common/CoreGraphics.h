@@ -10,7 +10,7 @@ private:
 	Microsoft::WRL::ComPtr<IDXGISwapChain3> mSwapChain;
 
 	Microsoft::WRL::ComPtr<ID3D12Fence> mFence;
-	UINT mCurrFence = 0;
+	UINT mFenceCount = 0;
 
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> mGraphicsCommandList;
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> mCommandQueue;
@@ -34,16 +34,21 @@ private:
 	DXGI_FORMAT mDepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 #pragma endregion
 
+	HANDLE mEventHandle;
+
 	int mClientWidth = 800;
 	int mClientHeight = 600;
 	bool mFullsccreen = true;
 
 public:
 	CoreGraphics() = default;
+	~CoreGraphics();
 	CoreGraphics(int width, int height, bool fullscreen);
 	void InitDirect3D(HWND mHwnd);
-
 	virtual void OnInitialize()=0;
+
+protected:
+	void FlushCommandQueue();
 
 private:
 	void InitCommandObjects();

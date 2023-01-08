@@ -1,7 +1,13 @@
 #include "CoreGraphics.h"
 
+CoreGraphics::~CoreGraphics()
+{
+	CloseHandle(mEventHandle);
+}
+
 CoreGraphics::CoreGraphics(int width, int height, bool fullscreen):mClientWidth(width),mClientHeight(height),mFullsccreen(fullscreen)
 {
+	mEventHandle = {};
 	mScissorRect = {};
 	mViewPort = {};
 }
@@ -30,12 +36,24 @@ void CoreGraphics::InitDirect3D(HWND mHwnd)
 
 	mDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(mFence.GetAddressOf()));
 
+	mEventHandle = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
+
 	InitCommandObjects();
 	InitSwapChain(mHwnd);
 	InitDescriptorHeaps();
 
 
 
+}
+
+void CoreGraphics::FlushCommandQueue()
+{
+	mFenceCount++;
+	ExceptionProtect(mFence->Signal(mFenceCount));
+	if (mFence->GetCompletedValue() < mFenceCount) {
+		mFence->SetEventOnCompletion(mFenceCount, mEventHandle);
+		WaitForSingleObject(mEventHandle, INFINITE);
+	}
 }
 
 /// <summary>
