@@ -40,9 +40,14 @@ private:
 
 public:
 	CoreGraphics() = default;
-	CoreGraphics(int width, int height, int windowsName);
-	void InitDirect3D(HINSTANCE hInstance);
+	CoreGraphics(int width, int height, bool fullscreen);
+	void InitDirect3D(HWND mHwnd);
 
 	virtual void OnInitialize()=0;
+
+private:
+	void InitCommandObjects();
+	void InitSwapChain(HWND mHwnd);
+	void InitDescriptorHeaps();
 };
 #endif

@@ -44,6 +44,8 @@ int CoreSystem::Run(CoreGraphics* coreGraphics, HINSTANCE mHinstance, int cmdSho
         nullptr);
     ShowWindow(mCoreHwnd, cmdShow);
 
+    coreGraphics->InitDirect3D(mCoreHwnd);
+
     MSG msg = {};
     while (msg.message != WM_QUIT) {
         if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {

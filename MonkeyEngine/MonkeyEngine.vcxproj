@@ -78,6 +78,7 @@
     <ClCompile Include="Common\CoreGraphics.cpp" />
     <ClCompile Include="Common\CoreSystem.cpp" />
     <ClCompile Include="Common\CoreException.cpp" />
+    <ClCompile Include="Crate.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
