@@ -1,4 +1,14 @@
+//*********************************************************
+//
+// Copyright (c) Rick Laboratories. All rights reserved.
+// This code is licensed under the MIT License (MIT).
+// Autor: Luis Borrero
+//
+//*********************************************************
+
 #include "CoreSystem.h"
+
+HWND CoreSystem::mCoreHwnd = nullptr;
 
 /// <summary>
 /// run main program
@@ -43,6 +53,11 @@ int CoreSystem::Run(HINSTANCE mHinstance, int cmdShow)
     }
 
     return static_cast<char>(msg.message);
+}
+
+HWND CoreSystem::GetHwnd()
+{
+    return mCoreHwnd;
 }
 
 /// <summary>

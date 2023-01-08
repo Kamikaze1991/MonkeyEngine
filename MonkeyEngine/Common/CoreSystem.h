@@ -1,12 +1,24 @@
+//*********************************************************
+//
+// Copyright (c) Rick Laboratories. All rights reserved.
+// This code is licensed under the MIT License (MIT).
+// Autor: Luis Borrero
+//
+//*********************************************************
+
 #ifndef _CORE_SYSTEM_H_
 #define _CORE_SYSTEM_H_
-#include <Windows.h>
+#include "CoreUtil.h"
 
+/// <summary>
+/// Core system windows class
+/// </summary>
 class CoreSystem {
 private:
-	HWND mCoreHwnd;
+	static HWND mCoreHwnd;
 public:
-	int Run(HINSTANCE mHinstance, int cmdShow);
+	static int Run(HINSTANCE mHinstance, int cmdShow);
+	static HWND GetHwnd();
 protected:
 	static LRESULT CALLBACK WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 };
