@@ -1,15 +1,8 @@
-//*********************************************************
-//
-// Copyright (c) Rick Laboratories. All rights reserved.
-// This code is licensed under the MIT License (MIT).
-// Autor: Luis Borrero
-//
-//*********************************************************
-
-#ifndef _CORE_EXCEPTION_H
-#define _CORE_EXCEPTION_H
-
-#include "CoreUtil.h"
+#ifndef _CORE_EXCEPTION_H_
+#define _CORE_EXCEPTION_H_
+#include <Windows.h>
+#include <string>
+#include <comdef.h>
 
 class CoreException {
 private:
@@ -21,8 +14,9 @@ public:
 	HRESULT mErrorCode = S_OK;
 	std::wstring mFunctionName;
 	std::wstring mFileName;
-	int mLineNumber=-1;
+	int mLineNumber = -1;
 };
 
-
 #endif
+
+

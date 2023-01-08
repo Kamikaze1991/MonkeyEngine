@@ -21,5 +21,6 @@ _Use_decl_annotations_
 /// <returns>return int response</returns>
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {	
-	return CoreSystem::Run(hInstance, nCmdShow);
+	
+	return CoreSystem::Run(nullptr,hInstance, nCmdShow);
 }

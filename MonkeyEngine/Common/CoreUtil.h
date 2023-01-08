@@ -5,6 +5,17 @@
 #include <iostream>
 #include <string>
 #include <comdef.h>
+#include <d3d12.h>
+#include <dxgi1_4.h>
+#include <wrl.h>
+#include "CoreException.h"
+
+inline std::wstring AnsiToWString(const std::string& str)
+{
+    WCHAR buffer[512];
+    MultiByteToWideChar(CP_ACP, 0, str.c_str(), -1, buffer, 512);
+    return std::wstring(buffer);
+}
 
 #ifndef ExceptionProtect
 #define ExceptionProtect(x)                                              \

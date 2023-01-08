@@ -16,7 +16,7 @@ HWND CoreSystem::mCoreHwnd = nullptr;
 /// <param name="mHinstance">core instance</param>
 /// <param name="cmdShow">show windows?</param>
 /// <returns>return result integer application</returns>
-int CoreSystem::Run(HINSTANCE mHinstance, int cmdShow)
+int CoreSystem::Run(CoreGraphics* coreGraphics, HINSTANCE mHinstance, int cmdShow)
 {
     WNDCLASSEX wc = {};
     wc.cbSize = sizeof(WNDCLASSEX);

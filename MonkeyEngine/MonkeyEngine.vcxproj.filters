@@ -5,7 +5,7 @@
     <ClCompile Include="Common\CoreSystem.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="Common\CoreException.h" />
+    <ClCompile Include="Common\CoreGraphics.cpp" />
     <ClCompile Include="Common\CoreException.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -18,5 +18,8 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="Common\CoreUtil.h" />
+    <ClInclude Include="Common\CoreGraphics.h" />
+    <ClInclude Include="Crate.h" />
+    <ClInclude Include="Common\CoreException.h" />
   </ItemGroup>
 </Project>
