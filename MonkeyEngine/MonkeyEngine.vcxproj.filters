@@ -32,5 +32,6 @@
     <ClInclude Include="Common\CoreUtil.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="Common\d3dx12.h" />
   </ItemGroup>
 </Project>

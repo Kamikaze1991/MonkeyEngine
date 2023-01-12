@@ -56,6 +56,77 @@ void CoreGraphics::FlushCommandQueue()
 	}
 }
 
+void CoreGraphics::Reset()
+{
+	FlushCommandQueue();
+	mGraphicsCommandList->Reset(mCommandAllocator.Get(), nullptr);
+	//reset buffers
+	for (int i = 0; i < mFrameCount; i++)
+		mSwapChainBuffer[i].Reset();
+	mDepthStencilBuffer.Reset();
+	//resize swap chain
+	DXGI_SWAP_CHAIN_DESC sd = {};
+	mSwapChain->GetDesc(&sd);
+	mSwapChain->ResizeBuffers(mFrameCount, mClientWidth, mClientHeight, mSwapChainFormat, sd.Flags);
+
+	//rebuild buffers
+	CD3DX12_CPU_DESCRIPTOR_HANDLE mRtvHandle(mRtvHeap->GetCPUDescriptorHandleForHeapStart());
+	for (int i = 0; i < mFrameCount; i++) {
+		mSwapChain->GetBuffer(i, IID_PPV_ARGS(mSwapChainBuffer[i].GetAddressOf()));
+		mDevice->CreateRenderTargetView(mSwapChainBuffer[i].Get(), nullptr, mRtvHandle);
+		mRtvHandle.Offset(1, mRtvHeapSize);
+	}
+
+	D3D12_RESOURCE_DESC mDsvDesc = CD3DX12_RESOURCE_DESC::Tex2D(mDepthStencilFormat,mClientWidth,mClientHeight,1,0);
+	mDsvDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+	D3D12_CLEAR_VALUE clearValue;
+	clearValue.DepthStencil.Depth = 1.0f;
+	clearValue.DepthStencil.Stencil = 0;
+	clearValue.Format = mDepthStencilFormat;
+	const D3D12_HEAP_PROPERTIES heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+
+	mDevice->CreateCommittedResource(
+		&heapProperties,
+		D3D12_HEAP_FLAG_NONE, 
+		&mDsvDesc, 
+		D3D12_RESOURCE_STATE_DEPTH_WRITE, 
+		&clearValue, 
+		IID_PPV_ARGS(mDepthStencilBuffer.GetAddressOf()));
+
+	D3D12_DEPTH_STENCIL_VIEW_DESC dsvd = {};
+	dsvd.Flags = D3D12_DSV_FLAG_NONE;
+	dsvd.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DMS;
+	dsvd.Texture2D.MipSlice = 1;
+	dsvd.Format = mDepthStencilFormat;
+	mDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), &dsvd, DepthStencilView());
+
+	mGraphicsCommandList->Close();
+	ID3D12CommandList* cmdList[] = {mGraphicsCommandList.Get()};
+	mCommandQueue->ExecuteCommandLists(_countof(cmdList), cmdList);
+	FlushCommandQueue();
+
+	mViewPort.Height = mClientHeight;
+	mViewPort.Width = mClientWidth;
+	mViewPort.MaxDepth = 1000.0f;
+	mViewPort.MinDepth = 1.0f;
+	mViewPort.TopLeftX = 0;
+	mViewPort.TopLeftY = 0;
+
+	mScissorRect = { 0,0,mClientWidth,mClientHeight };
+
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE CoreGraphics::CurrentBackBufferView() const
+{
+	return CD3DX12_CPU_DESCRIPTOR_HANDLE(mRtvHeap->GetCPUDescriptorHandleForHeapStart(), mCurrFrame, mRtvHeapSize);
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE CoreGraphics::DepthStencilView() const
+{
+	return mDsvHeap->GetCPUDescriptorHandleForHeapStart();
+}
+
 /// <summary>
 /// Create Commands Objects
 /// </summary>

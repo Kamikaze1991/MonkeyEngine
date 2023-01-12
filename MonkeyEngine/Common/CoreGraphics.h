@@ -49,6 +49,9 @@ public:
 
 protected:
 	void FlushCommandQueue();
+	void Reset();
+	D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView()const;
+	D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView()const;
 
 private:
 	void InitCommandObjects();
