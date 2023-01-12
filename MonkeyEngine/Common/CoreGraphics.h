@@ -22,9 +22,9 @@ private:
 	UINT mDsvHeapSize = 0;
 	UINT mCbvSrvUavheapSize = 0;
 
-	static const int mMaxFrameBuffer = 2;
+	static const int mFrameCount = 2;
 	int mCurrFrame = 0;
-	Microsoft::WRL::ComPtr<ID3D12Resource> mSwapChainBuffer[mMaxFrameBuffer];
+	Microsoft::WRL::ComPtr<ID3D12Resource> mSwapChainBuffer[mFrameCount];
 	Microsoft::WRL::ComPtr<ID3D12Resource> mDepthStencilBuffer;
 
 	D3D12_VIEWPORT mViewPort;

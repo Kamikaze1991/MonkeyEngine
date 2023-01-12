@@ -8,6 +8,7 @@
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <wrl.h>
+#include <d3d12.h>
 #include "CoreException.h"
 
 inline std::wstring AnsiToWString(const std::string& str)
@@ -17,8 +18,8 @@ inline std::wstring AnsiToWString(const std::string& str)
     return std::wstring(buffer);
 }
 
-#ifndef ExceptionProtect
-#define ExceptionProtect(x)                                              \
+#ifndef ExceptionFuse
+#define ExceptionFuse(x)                                              \
 {                                                                     \
     HRESULT hr__ = (x);                                               \
     std::wstring wfn = AnsiToWString(__FILE__);                       \

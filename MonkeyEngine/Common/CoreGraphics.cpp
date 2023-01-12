@@ -17,17 +17,17 @@ void CoreGraphics::InitDirect3D(HWND mHwnd)
 #if defined(DEBUG)||defined(_DEBUG)
 {
 	Microsoft::WRL::ComPtr<ID3D12Debug> mDebug;
-	ExceptionProtect(D3D12GetDebugInterface(IID_PPV_ARGS(mDebug.GetAddressOf())));
+	ExceptionFuse(D3D12GetDebugInterface(IID_PPV_ARGS(mDebug.GetAddressOf())));
 	mDebug->EnableDebugLayer();
 }
 #endif
-	ExceptionProtect(CreateDXGIFactory2(0, IID_PPV_ARGS(mFactory.GetAddressOf())));
+	ExceptionFuse(CreateDXGIFactory2(0, IID_PPV_ARGS(mFactory.GetAddressOf())));
 
 	HRESULT hrCreateDevice = D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(mDevice.GetAddressOf()));
 	if (FAILED(hrCreateDevice)) {
 		Microsoft::WRL::ComPtr<IDXGIAdapter> localAdapter;
-		ExceptionProtect(mFactory->EnumWarpAdapter(IID_PPV_ARGS(localAdapter.GetAddressOf())));
-		ExceptionProtect(D3D12CreateDevice(localAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(mDevice.GetAddressOf())));
+		ExceptionFuse(mFactory->EnumWarpAdapter(IID_PPV_ARGS(localAdapter.GetAddressOf())));
+		ExceptionFuse(D3D12CreateDevice(localAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(mDevice.GetAddressOf())));
 	}
 
 	mDsvHeapSize = mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
@@ -49,7 +49,7 @@ void CoreGraphics::InitDirect3D(HWND mHwnd)
 void CoreGraphics::FlushCommandQueue()
 {
 	mFenceCount++;
-	ExceptionProtect(mFence->Signal(mFenceCount));
+	ExceptionFuse(mFence->Signal(mFenceCount));
 	if (mFence->GetCompletedValue() < mFenceCount) {
 		mFence->SetEventOnCompletion(mFenceCount, mEventHandle);
 		WaitForSingleObject(mEventHandle, INFINITE);
@@ -61,12 +61,12 @@ void CoreGraphics::FlushCommandQueue()
 /// </summary>
 void CoreGraphics::InitCommandObjects()
 {
-	ExceptionProtect(mDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(mCommandAllocator.GetAddressOf())));
+	ExceptionFuse(mDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(mCommandAllocator.GetAddressOf())));
 	D3D12_COMMAND_QUEUE_DESC commandQueueDesc = {};
 	commandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	commandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-	ExceptionProtect(mDevice->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(mCommandQueue.GetAddressOf())));
-	ExceptionProtect(mDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, mCommandAllocator.Get(), nullptr, IID_PPV_ARGS(mGraphicsCommandList.GetAddressOf())));
+	ExceptionFuse(mDevice->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(mCommandQueue.GetAddressOf())));
+	ExceptionFuse(mDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, mCommandAllocator.Get(), nullptr, IID_PPV_ARGS(mGraphicsCommandList.GetAddressOf())));
 	mGraphicsCommandList->Close();
 }
 
@@ -79,15 +79,15 @@ void CoreGraphics::InitSwapChain(HWND mHwnd)
 	mSwapChain.Reset();
 	Microsoft::WRL::ComPtr<IDXGISwapChain1> localSwapChain;
 	DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
-	swapChainDesc.BufferCount = mMaxFrameBuffer;
+	swapChainDesc.BufferCount = mFrameCount;
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapChainDesc.Format = mSwapChainFormat;
 	swapChainDesc.Height = mClientHeight;
 	swapChainDesc.Width = mClientWidth;
 	swapChainDesc.SampleDesc.Count = 1;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-	ExceptionProtect(mFactory->CreateSwapChainForHwnd(mCommandQueue.Get(), mHwnd, &swapChainDesc, nullptr, nullptr, &localSwapChain));
-	ExceptionProtect(localSwapChain.As(&mSwapChain));
+	ExceptionFuse(mFactory->CreateSwapChainForHwnd(mCommandQueue.Get(), mHwnd, &swapChainDesc, nullptr, nullptr, &localSwapChain));
+	ExceptionFuse(localSwapChain.As(&mSwapChain));
 }
 
 
@@ -102,10 +102,11 @@ void CoreGraphics::InitDescriptorHeaps()
 	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
 	D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-	dsvHeapDesc.NumDescriptors = mMaxFrameBuffer;
-	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+	rtvHeapDesc.NumDescriptors = mFrameCount;
+	rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
-	ExceptionProtect(mDevice->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(mDsvHeap.GetAddressOf())));
-	ExceptionProtect(mDevice->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(mRtvHeap.GetAddressOf())));
+	ExceptionFuse(mDevice->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(mRtvHeap.GetAddressOf())));
+	ExceptionFuse(mDevice->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(mDsvHeap.GetAddressOf())));
+	
 }
