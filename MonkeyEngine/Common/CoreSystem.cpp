@@ -9,6 +9,7 @@
 #include "CoreSystem.h"
 
 HWND CoreSystem::mCoreHwnd = nullptr;
+CoreGraphics* CoreSystem::mCoreGraphics = nullptr;
 
 /// <summary>
 /// run main program
@@ -18,6 +19,7 @@ HWND CoreSystem::mCoreHwnd = nullptr;
 /// <returns>return result integer application</returns>
 int CoreSystem::Run(CoreGraphics* coreGraphics, HINSTANCE mHinstance, int cmdShow)
 {
+    mCoreGraphics = coreGraphics;
     WNDCLASSEX wc = {};
     wc.cbSize = sizeof(WNDCLASSEX);
     wc.style = CS_HREDRAW | CS_VREDRAW;
@@ -76,6 +78,15 @@ LRESULT CoreSystem::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
     {
     case WM_DESTROY:
         PostQuitMessage(0);
+        return 0;
+    case WM_SIZE:
+        mCoreGraphics->mClientWidth = LOWORD(lParam);
+        mCoreGraphics->mClientHeight = HIWORD(lParam);
+        mCoreGraphics->Reset();
+        return 0;
+
+    case WM_PAINT:
+        mCoreGraphics->Loop();
         return 0;
     default:
         return DefWindowProc(hWnd, msg, wParam, lParam);

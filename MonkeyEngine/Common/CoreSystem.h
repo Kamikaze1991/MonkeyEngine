@@ -17,6 +17,7 @@
 class CoreSystem {
 private:
 	static HWND mCoreHwnd;
+	static CoreGraphics* mCoreGraphics;
 public:
 	static int Run(CoreGraphics* coreGraphics, HINSTANCE mHinstance, int cmdShow);
 	static HWND GetHwnd();

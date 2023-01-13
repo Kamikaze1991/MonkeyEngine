@@ -42,9 +42,10 @@ void CoreGraphics::InitDirect3D(HWND mHwnd)
 	InitSwapChain(mHwnd);
 	InitDescriptorHeaps();
 
-
-
+	Reset();
 }
+
+
 
 void CoreGraphics::FlushCommandQueue()
 {
@@ -58,7 +59,10 @@ void CoreGraphics::FlushCommandQueue()
 
 void CoreGraphics::Reset()
 {
+	if (!mDevice)
+		return;
 	FlushCommandQueue();
+	mCommandAllocator->Reset();
 	mGraphicsCommandList->Reset(mCommandAllocator.Get(), nullptr);
 	//reset buffers
 	for (int i = 0; i < mFrameCount; i++)
@@ -68,7 +72,7 @@ void CoreGraphics::Reset()
 	DXGI_SWAP_CHAIN_DESC sd = {};
 	mSwapChain->GetDesc(&sd);
 	mSwapChain->ResizeBuffers(mFrameCount, mClientWidth, mClientHeight, mSwapChainFormat, sd.Flags);
-
+	mCurrFrame = 0;
 	//rebuild buffers
 	CD3DX12_CPU_DESCRIPTOR_HANDLE mRtvHandle(mRtvHeap->GetCPUDescriptorHandleForHeapStart());
 	for (int i = 0; i < mFrameCount; i++) {
@@ -97,7 +101,6 @@ void CoreGraphics::Reset()
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsvd = {};
 	dsvd.Flags = D3D12_DSV_FLAG_NONE;
 	dsvd.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DMS;
-	dsvd.Texture2D.MipSlice = 1;
 	dsvd.Format = mDepthStencilFormat;
 	mDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), &dsvd, DepthStencilView());
 
@@ -105,6 +108,7 @@ void CoreGraphics::Reset()
 	ID3D12CommandList* cmdList[] = {mGraphicsCommandList.Get()};
 	mCommandQueue->ExecuteCommandLists(_countof(cmdList), cmdList);
 	FlushCommandQueue();
+	mCommandAllocator.Reset();
 
 	mViewPort.Height = mClientHeight;
 	mViewPort.Width = mClientWidth;
@@ -115,6 +119,13 @@ void CoreGraphics::Reset()
 
 	mScissorRect = { 0,0,mClientWidth,mClientHeight };
 
+}
+
+void CoreGraphics::Loop()
+{
+	OnUpdate();
+	OnRender();
+	mCurrFrame = (mCurrFrame + 1) % mFrameCount;
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE CoreGraphics::CurrentBackBufferView() const

@@ -7,6 +7,9 @@ class Crate :public CoreGraphics {
 private:
 	int error;
 public:
+	virtual void OnUpdate();
+	virtual void OnRender();
+	void PopulateCommands();
 	Crate()=default;
 	Crate(int among);
 	virtual void OnInitialize();

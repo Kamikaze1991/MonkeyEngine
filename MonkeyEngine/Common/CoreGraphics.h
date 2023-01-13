@@ -3,7 +3,7 @@
 #include "CoreUtil.h"
 
 class CoreGraphics {
-private:
+protected:
 #pragma region Directx Main Variables
 	Microsoft::WRL::ComPtr<ID3D12Device> mDevice;
 	Microsoft::WRL::ComPtr<IDXGIFactory4> mFactory;
@@ -35,24 +35,26 @@ private:
 #pragma endregion
 
 	HANDLE mEventHandle;
-
-	int mClientWidth = 800;
-	int mClientHeight = 600;
 	bool mFullsccreen = true;
 
 public:
+	int mClientWidth = 800;
+	int mClientHeight = 600;
+
 	CoreGraphics() = default;
 	~CoreGraphics();
 	CoreGraphics(int width, int height, bool fullscreen);
 	void InitDirect3D(HWND mHwnd);
+	void Reset();
+	virtual void Loop();
 	virtual void OnInitialize()=0;
+	virtual void OnUpdate()=0;
+	virtual void OnRender()=0;
 
 protected:
 	void FlushCommandQueue();
-	void Reset();
 	D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView()const;
 	D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView()const;
-
 private:
 	void InitCommandObjects();
 	void InitSwapChain(HWND mHwnd);
