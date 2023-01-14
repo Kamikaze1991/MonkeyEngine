@@ -10,6 +10,7 @@ public:
 	virtual void OnUpdate();
 	virtual void OnRender();
 	void PopulateCommands();
+	~Crate();
 	Crate()=default;
 	Crate(int among);
 	virtual void OnInitialize();

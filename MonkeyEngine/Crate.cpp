@@ -13,12 +13,10 @@ void Crate::OnRender()
 	mCommandQueue->ExecuteCommandLists(_countof(mList), mList);
 	mSwapChain->Present(1, 0);
 	FlushCommandQueue();
-
 }
 
 void Crate::PopulateCommands()
 {
-	mCommandAllocator->Reset();
 	mGraphicsCommandList->Reset(mCommandAllocator.Get(), nullptr);
 	const D3D12_RESOURCE_BARRIER rbInitial = CD3DX12_RESOURCE_BARRIER::Transition(mSwapChainBuffer[mCurrFrame].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	mGraphicsCommandList->ResourceBarrier(1, &rbInitial);
@@ -30,6 +28,12 @@ void Crate::PopulateCommands()
 	mGraphicsCommandList->ResourceBarrier(1, &rbFinal);
 	mGraphicsCommandList->Close();
 
+}
+
+Crate::~Crate()
+{
+		FlushCommandQueue();
+		mCommandAllocator->Reset();
 }
 
 Crate::Crate(int among)

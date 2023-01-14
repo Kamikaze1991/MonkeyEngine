@@ -2,7 +2,9 @@
 
 CoreGraphics::~CoreGraphics()
 {
+	FlushCommandQueue();
 	CloseHandle(mEventHandle);
+	
 }
 
 CoreGraphics::CoreGraphics(int width, int height, bool fullscreen):mClientWidth(width),mClientHeight(height),mFullsccreen(fullscreen)
@@ -108,8 +110,6 @@ void CoreGraphics::Reset()
 	ID3D12CommandList* cmdList[] = {mGraphicsCommandList.Get()};
 	mCommandQueue->ExecuteCommandLists(_countof(cmdList), cmdList);
 	FlushCommandQueue();
-	mCommandAllocator.Reset();
-
 	mViewPort.Height = mClientHeight;
 	mViewPort.Width = mClientWidth;
 	mViewPort.MaxDepth = 1000.0f;
