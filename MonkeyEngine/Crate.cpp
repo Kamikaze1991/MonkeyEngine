@@ -7,15 +7,8 @@ void Crate::OnUpdate()
 	mCurrFrameResource = mFrameResources[mCurrFrameResourceIndex].get();
 	// Has the GPU finished processing the commands of the current frame resource?
 	// If not, wait until the GPU has completed commands up to this fence point.
-	if (mCurrFrameResource->mFrameFenceCount != 0 && mFence->GetCompletedValue() < mCurrFrameResource->mFrameFenceCount)
-	{
-		HANDLE eventHandle = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
-		if (eventHandle == nullptr)
-			return;
-		mFence->SetEventOnCompletion(mCurrFrameResource->mFrameFenceCount, eventHandle);
-		WaitForSingleObject(eventHandle, INFINITE);
-		CloseHandle(eventHandle);
-	}
+	FlushCommandQueue(mCurrFrameResource->mFrameFenceCount);
+	
 }
 
 void Crate::OnRender()
@@ -44,15 +37,7 @@ void Crate::PopulateCommands()
 	mCurrFrameResource->mFrameFenceCount = mFenceCount++;
 	mCommandQueue->Signal(mFence.Get(), mFenceCount);
 
-	if (mCurrFrameResource->mFrameFenceCount != 0 && mFence->GetCompletedValue() < mCurrFrameResource->mFrameFenceCount)
-	{
-		HANDLE eventHandle = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
-		if (eventHandle == nullptr)
-			return;
-		mFence->SetEventOnCompletion(mCurrFrameResource->mFrameFenceCount, eventHandle);
-		WaitForSingleObject(eventHandle, INFINITE);
-		CloseHandle(eventHandle);
-	}
+	FlushCommandQueue(mCurrFrameResource->mFrameFenceCount);
 }
 
 Crate::~Crate()

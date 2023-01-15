@@ -63,6 +63,17 @@ void CoreGraphics::FlushCommandQueue()
 	}
 }
 
+void CoreGraphics::FlushCommandQueue(UINT64 fenceValue)
+{
+	if (fenceValue != 0 && mFence->GetCompletedValue() < fenceValue) {
+		HANDLE handleLocal = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
+		if (!handleLocal)return;
+		mFence->SetEventOnCompletion(fenceValue, handleLocal);
+		WaitForSingleObject(handleLocal, INFINITE);
+		CloseHandle(handleLocal);
+	}
+}
+
 void CoreGraphics::OnReset()
 {
 	if (!mDevice)
