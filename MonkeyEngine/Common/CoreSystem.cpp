@@ -54,6 +54,9 @@ int CoreSystem::Run(CoreGraphics* coreGraphics, HINSTANCE mHinstance, int cmdSho
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
+        else {
+            mCoreGraphics->Loop();
+        }
     }
 
     return static_cast<char>(msg.message);
@@ -82,11 +85,9 @@ LRESULT CoreSystem::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
     case WM_SIZE:
         mCoreGraphics->mClientWidth = LOWORD(lParam);
         mCoreGraphics->mClientHeight = HIWORD(lParam);
-        mCoreGraphics->Reset();
         return 0;
-
-    case WM_PAINT:
-        mCoreGraphics->Loop();
+    case WM_EXITSIZEMOVE:
+        mCoreGraphics->OnReset();
         return 0;
     default:
         return DefWindowProc(hWnd, msg, wParam, lParam);

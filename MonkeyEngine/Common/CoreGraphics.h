@@ -30,11 +30,11 @@ protected:
 	D3D12_VIEWPORT mViewPort;
 	D3D12_RECT mScissorRect;
 
+	bool mPause = false;
+
 	DXGI_FORMAT mSwapChainFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 	DXGI_FORMAT mDepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 #pragma endregion
-
-	HANDLE mEventHandle;
 	bool mFullsccreen = true;
 
 public:
@@ -45,7 +45,7 @@ public:
 	~CoreGraphics();
 	CoreGraphics(int width, int height, bool fullscreen);
 	void InitDirect3D(HWND mHwnd);
-	void Reset();
+	void OnReset();
 	virtual void Loop();
 	virtual void OnInitialize()=0;
 	virtual void OnUpdate()=0;
@@ -56,6 +56,7 @@ protected:
 	D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView()const;
 	D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView()const;
 private:
+	
 	void InitCommandObjects();
 	void InitSwapChain(HWND mHwnd);
 	void InitDescriptorHeaps();

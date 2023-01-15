@@ -2,10 +2,14 @@
 #define _CRATE_H_
 #include "Common/CoreUtil.h"
 #include "Common/CoreGraphics.h"
+#include "FrameResource.h"
 
 class Crate :public CoreGraphics {
 private:
 	int error;
+	std::vector<std::unique_ptr<FrameResource>> mFrameResources;
+	FrameResource* mCurrFrameResource = nullptr;
+	int mCurrFrameResourceIndex = 0;
 public:
 	virtual void OnUpdate();
 	virtual void OnRender();

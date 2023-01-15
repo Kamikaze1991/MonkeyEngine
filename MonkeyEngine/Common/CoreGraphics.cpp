@@ -3,13 +3,11 @@
 CoreGraphics::~CoreGraphics()
 {
 	FlushCommandQueue();
-	CloseHandle(mEventHandle);
 	
 }
 
 CoreGraphics::CoreGraphics(int width, int height, bool fullscreen):mClientWidth(width),mClientHeight(height),mFullsccreen(fullscreen)
 {
-	mEventHandle = {};
 	mScissorRect = {};
 	mViewPort = {};
 }
@@ -38,13 +36,13 @@ void CoreGraphics::InitDirect3D(HWND mHwnd)
 
 	mDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(mFence.GetAddressOf()));
 
-	mEventHandle = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
 
 	InitCommandObjects();
 	InitSwapChain(mHwnd);
 	InitDescriptorHeaps();
 
-	Reset();
+	OnReset();
+	OnInitialize();
 }
 
 
@@ -52,20 +50,26 @@ void CoreGraphics::InitDirect3D(HWND mHwnd)
 void CoreGraphics::FlushCommandQueue()
 {
 	mFenceCount++;
-	ExceptionFuse(mFence->Signal(mFenceCount));
+	mCommandQueue->Signal(mFence.Get(), mFenceCount);
+	//ExceptionFuse(mCommandQueue->Signal(mFenceCount));
+	
 	if (mFence->GetCompletedValue() < mFenceCount) {
-		mFence->SetEventOnCompletion(mFenceCount, mEventHandle);
-		WaitForSingleObject(mEventHandle, INFINITE);
+		HANDLE eventHandle = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
+		if (eventHandle == nullptr)
+			return;
+		mFence->SetEventOnCompletion(mFenceCount, eventHandle);
+		WaitForSingleObject(eventHandle, INFINITE);
+		CloseHandle(eventHandle);
 	}
 }
 
-void CoreGraphics::Reset()
+void CoreGraphics::OnReset()
 {
 	if (!mDevice)
 		return;
 	FlushCommandQueue();
-	mCommandAllocator->Reset();
-	mGraphicsCommandList->Reset(mCommandAllocator.Get(), nullptr);
+//	mCommandAllocator->Reset();
+	ExceptionFuse(mGraphicsCommandList->Reset(mCommandAllocator.Get(), nullptr));
 	//reset buffers
 	for (int i = 0; i < mFrameCount; i++)
 		mSwapChainBuffer[i].Reset();
@@ -73,12 +77,12 @@ void CoreGraphics::Reset()
 	//resize swap chain
 	DXGI_SWAP_CHAIN_DESC sd = {};
 	mSwapChain->GetDesc(&sd);
-	mSwapChain->ResizeBuffers(mFrameCount, mClientWidth, mClientHeight, mSwapChainFormat, sd.Flags);
+	ExceptionFuse(mSwapChain->ResizeBuffers(mFrameCount, mClientWidth, mClientHeight, mSwapChainFormat, sd.Flags));
 	mCurrFrame = 0;
 	//rebuild buffers
 	CD3DX12_CPU_DESCRIPTOR_HANDLE mRtvHandle(mRtvHeap->GetCPUDescriptorHandleForHeapStart());
 	for (int i = 0; i < mFrameCount; i++) {
-		mSwapChain->GetBuffer(i, IID_PPV_ARGS(mSwapChainBuffer[i].GetAddressOf()));
+		ExceptionFuse(mSwapChain->GetBuffer(i, IID_PPV_ARGS(mSwapChainBuffer[i].GetAddressOf())));
 		mDevice->CreateRenderTargetView(mSwapChainBuffer[i].Get(), nullptr, mRtvHandle);
 		mRtvHandle.Offset(1, mRtvHeapSize);
 	}
@@ -167,6 +171,7 @@ void CoreGraphics::InitSwapChain(HWND mHwnd)
 	swapChainDesc.Height = mClientHeight;
 	swapChainDesc.Width = mClientWidth;
 	swapChainDesc.SampleDesc.Count = 1;
+	swapChainDesc.Flags = 0;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	ExceptionFuse(mFactory->CreateSwapChainForHwnd(mCommandQueue.Get(), mHwnd, &swapChainDesc, nullptr, nullptr, &localSwapChain));
 	ExceptionFuse(localSwapChain.As(&mSwapChain));

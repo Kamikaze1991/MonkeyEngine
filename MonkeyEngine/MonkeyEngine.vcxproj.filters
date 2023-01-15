@@ -12,6 +12,7 @@
     <ClCompile Include="Common\CoreGraphics.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="FrameResource.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Common">
@@ -33,5 +34,6 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="Common\d3dx12.h" />
+    <ClInclude Include="FrameResource.h" />
   </ItemGroup>
 </Project>

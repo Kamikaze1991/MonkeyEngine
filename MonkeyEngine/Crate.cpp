@@ -3,21 +3,31 @@
 void Crate::OnUpdate()
 {
 
+	mCurrFrameResourceIndex = (mCurrFrameResourceIndex + 1) % 3;
+	mCurrFrameResource = mFrameResources[mCurrFrameResourceIndex].get();
+	// Has the GPU finished processing the commands of the current frame resource?
+	// If not, wait until the GPU has completed commands up to this fence point.
+	if (mCurrFrameResource->mFrameFenceCount != 0 && mFence->GetCompletedValue() < mCurrFrameResource->mFrameFenceCount)
+	{
+		HANDLE eventHandle = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
+		if (eventHandle == nullptr)
+			return;
+		mFence->SetEventOnCompletion(mCurrFrameResource->mFrameFenceCount, eventHandle);
+		WaitForSingleObject(eventHandle, INFINITE);
+		CloseHandle(eventHandle);
+	}
 }
 
 void Crate::OnRender()
 {
 	PopulateCommands();
-
-	ID3D12CommandList* mList[] = { mGraphicsCommandList.Get() };
-	mCommandQueue->ExecuteCommandLists(_countof(mList), mList);
-	mSwapChain->Present(1, 0);
-	FlushCommandQueue();
 }
 
 void Crate::PopulateCommands()
 {
-	mGraphicsCommandList->Reset(mCommandAllocator.Get(), nullptr);
+	auto mCurrCmd = mCurrFrameResource->mFrameCommandAllocator;
+	mCurrCmd->Reset();
+	mGraphicsCommandList->Reset(mCurrCmd.Get(), nullptr);
 	const D3D12_RESOURCE_BARRIER rbInitial = CD3DX12_RESOURCE_BARRIER::Transition(mSwapChainBuffer[mCurrFrame].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	mGraphicsCommandList->ResourceBarrier(1, &rbInitial);
 
@@ -28,6 +38,21 @@ void Crate::PopulateCommands()
 	mGraphicsCommandList->ResourceBarrier(1, &rbFinal);
 	mGraphicsCommandList->Close();
 
+	ID3D12CommandList* mList[] = { mGraphicsCommandList.Get() };
+	mCommandQueue->ExecuteCommandLists(_countof(mList), mList);
+	mSwapChain->Present(0, 0);
+	mCurrFrameResource->mFrameFenceCount = mFenceCount++;
+	mCommandQueue->Signal(mFence.Get(), mFenceCount);
+
+	if (mCurrFrameResource->mFrameFenceCount != 0 && mFence->GetCompletedValue() < mCurrFrameResource->mFrameFenceCount)
+	{
+		HANDLE eventHandle = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
+		if (eventHandle == nullptr)
+			return;
+		mFence->SetEventOnCompletion(mCurrFrameResource->mFrameFenceCount, eventHandle);
+		WaitForSingleObject(eventHandle, INFINITE);
+		CloseHandle(eventHandle);
+	}
 }
 
 Crate::~Crate()
@@ -43,4 +68,8 @@ Crate::Crate(int among)
 
 void Crate::OnInitialize()
 {
+	for (int i = 0; i < 3; ++i)
+	{
+		mFrameResources.push_back(std::make_unique<FrameResource>(mDevice.Get()));
+	}
 }

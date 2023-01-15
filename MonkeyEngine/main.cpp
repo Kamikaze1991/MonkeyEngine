@@ -21,7 +21,18 @@ _Use_decl_annotations_
 /// <param name="nCmdShow">show windows?</param>
 /// <returns>return int response</returns>
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
-{	
-	Crate crate;
-	return CoreSystem::Run(&crate,hInstance, nCmdShow);
+{
+    try
+    {
+        Crate crate;
+        return CoreSystem::Run(&crate, hInstance, nCmdShow);
+    }
+    catch (CoreException& e) {
+        MessageBox(nullptr, e.ProcessMessage().c_str(), L"HR Failed", MB_OK);
+    }
+	
+
+
+
+   
 }
