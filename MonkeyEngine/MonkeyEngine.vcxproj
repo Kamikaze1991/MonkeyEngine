@@ -87,7 +87,7 @@
     <ClInclude Include="Common\CoreSystem.h" />
     <ClInclude Include="Common\CoreUtil.h" />
     <ClInclude Include="Common\CoreException.h" />
-    <ClInclude Include="Common\d3dx12.h" />
+    <ClInclude Include="Common\ThirdParty\d3dx12.h" />
     <ClInclude Include="Crate.h" />
     <ClInclude Include="FrameResource.h" />
   </ItemGroup>

@@ -125,8 +125,8 @@ void CoreGraphics::OnReset()
 	ID3D12CommandList* cmdList[] = {mGraphicsCommandList.Get()};
 	mCommandQueue->ExecuteCommandLists(_countof(cmdList), cmdList);
 	FlushCommandQueue();
-	mViewPort.Height = mClientHeight;
-	mViewPort.Width = mClientWidth;
+	mViewPort.Height = static_cast<float>(mClientHeight);
+	mViewPort.Width = static_cast<float>(mClientWidth);
 	mViewPort.MaxDepth = 1000.0f;
 	mViewPort.MinDepth = 1.0f;
 	mViewPort.TopLeftX = 0;

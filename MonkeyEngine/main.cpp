@@ -29,10 +29,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     }
     catch (CoreException& e) {
         MessageBox(nullptr, e.ProcessMessage().c_str(), L"HR Failed", MB_OK);
-    }
-	
-
-
-
-   
+    }   
+    return 0;
 }
