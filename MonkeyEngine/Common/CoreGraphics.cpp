@@ -37,9 +37,9 @@ void CoreGraphics::InitDirect3D(HWND mHwnd)
 	mDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(mFence.GetAddressOf()));
 
 
-	InitCommandObjects();
-	InitSwapChain(mHwnd);
-	InitDescriptorHeaps();
+	BuildCommandObjects();
+	BuildSwapChain(mHwnd);
+	BuildMainDescriptorHeaps();
 
 	OnReset();
 }
@@ -82,7 +82,7 @@ void CoreGraphics::OnReset()
 	ExceptionFuse(mGraphicsCommandList->Reset(mCommandAllocator.Get(), nullptr));
 	//reset buffers
 	for (int i = 0; i < mFrameCount; i++)
-		mSwapChainBuffer[i].Reset();
+		mBackBuffer[i].Reset();
 	mDepthStencilBuffer.Reset();
 	//resize swap chain
 	DXGI_SWAP_CHAIN_DESC sd = {};
@@ -92,8 +92,8 @@ void CoreGraphics::OnReset()
 	//rebuild buffers
 	CD3DX12_CPU_DESCRIPTOR_HANDLE mRtvHandle(mRtvHeap->GetCPUDescriptorHandleForHeapStart());
 	for (int i = 0; i < mFrameCount; i++) {
-		ExceptionFuse(mSwapChain->GetBuffer(i, IID_PPV_ARGS(mSwapChainBuffer[i].GetAddressOf())));
-		mDevice->CreateRenderTargetView(mSwapChainBuffer[i].Get(), nullptr, mRtvHandle);
+		ExceptionFuse(mSwapChain->GetBuffer(i, IID_PPV_ARGS(mBackBuffer[i].GetAddressOf())));
+		mDevice->CreateRenderTargetView(mBackBuffer[i].Get(), nullptr, mRtvHandle);
 		mRtvHandle.Offset(1, mRtvHeapSize);
 	}
 
@@ -148,7 +148,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE CoreGraphics::DepthStencilView() const
 /// <summary>
 /// Create Commands Objects
 /// </summary>
-void CoreGraphics::InitCommandObjects()
+void CoreGraphics::BuildCommandObjects()
 {
 	ExceptionFuse(mDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(mCommandAllocator.GetAddressOf())));
 	D3D12_COMMAND_QUEUE_DESC commandQueueDesc = {};
@@ -163,7 +163,7 @@ void CoreGraphics::InitCommandObjects()
 /// Swap chain initialization
 /// </summary>
 /// <param name="mHwnd">Windows handlet</param>
-void CoreGraphics::InitSwapChain(HWND mHwnd)
+void CoreGraphics::BuildSwapChain(HWND mHwnd)
 {
 	mSwapChain.Reset();
 	Microsoft::WRL::ComPtr<IDXGISwapChain1> localSwapChain;
@@ -184,7 +184,7 @@ void CoreGraphics::InitSwapChain(HWND mHwnd)
 /// <summary>
 /// initialize basic descriptor heaps
 /// </summary>
-void CoreGraphics::InitDescriptorHeaps()
+void CoreGraphics::BuildMainDescriptorHeaps()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
 	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
