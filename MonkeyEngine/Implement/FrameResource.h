@@ -1,4 +1,4 @@
-#include "Common/CoreUtil.h"
+#include "../Common/CoreUtil.h"
 struct FrameResource {
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> mFrameCommandAllocator;
 	UINT64 mFrameFenceCount=0;

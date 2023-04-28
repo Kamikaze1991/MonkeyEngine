@@ -1,7 +1,7 @@
 #ifndef _CRATE_H_
 #define _CRATE_H_
-#include "Common/CoreUtil.h"
-#include "Common/CoreBase.h"
+#include "../Common/CoreUtil.h"
+#include "../Common/CoreBase.h"
 #include "FrameResource.h"
 
 class Crate :public CoreBase {
