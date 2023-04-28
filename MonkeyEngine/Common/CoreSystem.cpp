@@ -9,7 +9,7 @@
 #include "CoreSystem.h"
 
 HWND CoreSystem::mCoreHwnd = nullptr;
-CoreBase* CoreSystem::mCoreBase = nullptr;
+CoreEngine* CoreSystem::mCoreEngine = nullptr;
 
 /// <summary>
 /// run main program
@@ -17,9 +17,9 @@ CoreBase* CoreSystem::mCoreBase = nullptr;
 /// <param name="mHinstance">core instance</param>
 /// <param name="cmdShow">show windows?</param>
 /// <returns>return result integer application</returns>
-int CoreSystem::Run(CoreBase* CoreBase, HINSTANCE mHinstance, int cmdShow)
+int CoreSystem::Run(CoreEngine* CoreEngine, HINSTANCE mHinstance, int cmdShow)
 {
-    mCoreBase = CoreBase;
+    mCoreEngine = CoreEngine;
     WNDCLASSEX wc = {};
     wc.cbSize = sizeof(WNDCLASSEX);
     wc.style = CS_HREDRAW | CS_VREDRAW;
@@ -46,7 +46,7 @@ int CoreSystem::Run(CoreBase* CoreBase, HINSTANCE mHinstance, int cmdShow)
         nullptr);
     ShowWindow(mCoreHwnd, cmdShow);
 
-    CoreBase->InitDirect3D(mCoreHwnd);
+    CoreEngine->InitDirect3D(mCoreHwnd);
 
     MSG msg = {};
     while (msg.message != WM_QUIT) {
@@ -55,7 +55,7 @@ int CoreSystem::Run(CoreBase* CoreBase, HINSTANCE mHinstance, int cmdShow)
             DispatchMessage(&msg);
         }
         else {
-            mCoreBase->Loop();
+            mCoreEngine->Loop();
         }
     }
 
@@ -83,11 +83,11 @@ LRESULT CoreSystem::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
         PostQuitMessage(0);
         return 0;
     case WM_SIZE:
-        mCoreBase->mClientWidth = LOWORD(lParam);
-        mCoreBase->mClientHeight = HIWORD(lParam);
+        mCoreEngine->mClientWidth = LOWORD(lParam);
+        mCoreEngine->mClientHeight = HIWORD(lParam);
         return 0;
     case WM_EXITSIZEMOVE:
-        mCoreBase->GetCoreGraphics()->OnReset();
+        mCoreEngine->GetCoreGraphics()->OnReset();
         return 0;
     default:
         return DefWindowProc(hWnd, msg, wParam, lParam);

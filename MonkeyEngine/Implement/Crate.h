@@ -1,10 +1,10 @@
 #ifndef _CRATE_H_
 #define _CRATE_H_
 #include "../Common/CoreUtil.h"
-#include "../Common/CoreBase.h"
+#include "../Common/CoreEngine.h"
 #include "FrameResource.h"
 
-class Crate :public CoreBase {
+class Crate :public CoreEngine {
 private:
 	int error;
 	std::vector<std::unique_ptr<FrameResource>> mFrameResources;

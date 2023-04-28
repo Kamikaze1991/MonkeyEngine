@@ -9,7 +9,7 @@
 #ifndef _CORE_SYSTEM_H_
 #define _CORE_SYSTEM_H_
 #include "CoreUtil.h"
-#include "CoreBase.h"
+#include "CoreEngine.h"
 
 /// <summary>
 /// Core system windows class
@@ -17,9 +17,9 @@
 class CoreSystem {
 private:
 	static HWND mCoreHwnd;
-	static CoreBase* mCoreBase;
+	static CoreEngine* mCoreEngine;
 public:
-	static int Run(CoreBase* CoreBase, HINSTANCE mHinstance, int cmdShow);
+	static int Run(CoreEngine* CoreEngine, HINSTANCE mHinstance, int cmdShow);
 	static HWND GetHwnd();
 protected:
 	static LRESULT CALLBACK WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

@@ -45,7 +45,7 @@ Crate::~Crate()
 		mGsx->mCommandAllocator->Reset();
 }
 
-Crate::Crate(int among):CoreBase()
+Crate::Crate(int among):CoreEngine()
 {
 	error = among;
 }

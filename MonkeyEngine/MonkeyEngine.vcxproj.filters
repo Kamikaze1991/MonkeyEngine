@@ -8,7 +8,7 @@
     <ClCompile Include="Common\CoreException.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="Common\CoreBase.cpp">
+    <ClCompile Include="Common\CoreEngine.cpp">
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="Common\CoreGraphics.cpp" />
@@ -27,7 +27,7 @@
     <ClInclude Include="Common\CoreException.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="Common\CoreBase.h">
+    <ClInclude Include="Common\CoreEngine.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="Common\CoreUtil.h">

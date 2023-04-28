@@ -3,7 +3,7 @@
 #include "CoreUtil.h"
 #include "CoreGraphics.h"
 
-class CoreBase {
+class CoreEngine {
 protected:
 
 	CoreGraphics* mGsx = nullptr;
@@ -14,9 +14,9 @@ public:
 	int mClientWidth = 800;
 	int mClientHeight = 600;
 
-	CoreBase() = default;
-	~CoreBase();
-	CoreBase(int width, int height, bool fullscreen);
+	CoreEngine() = default;
+	~CoreEngine();
+	CoreEngine(int width, int height, bool fullscreen);
 	void InitDirect3D(HWND mHwnd);
 	virtual void Loop();
 	virtual void OnInitialize()=0;
