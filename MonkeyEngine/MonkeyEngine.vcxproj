@@ -75,6 +75,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Common\CoreBase.cpp" />
     <ClCompile Include="Common\CoreGraphics.cpp" />
     <ClCompile Include="Common\CoreSystem.cpp" />
     <ClCompile Include="Common\CoreException.cpp" />
@@ -83,6 +84,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Common\CoreBase.h" />
     <ClInclude Include="Common\CoreGraphics.h" />
     <ClInclude Include="Common\CoreSystem.h" />
     <ClInclude Include="Common\CoreUtil.h" />

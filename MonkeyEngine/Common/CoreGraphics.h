@@ -2,8 +2,9 @@
 #define _CORE_GRAPHICS_H_
 #include "CoreUtil.h"
 
+
 class CoreGraphics {
-protected:
+public:
 #pragma region Directx Main Variables
 	Microsoft::WRL::ComPtr<ID3D12Device> mDevice;
 	Microsoft::WRL::ComPtr<IDXGIFactory4> mFactory;
@@ -46,18 +47,14 @@ public:
 	CoreGraphics(int width, int height, bool fullscreen);
 	void InitDirect3D(HWND mHwnd);
 	void OnReset();
-	virtual void Loop();
-	virtual void OnInitialize()=0;
-	virtual void OnUpdate()=0;
-	virtual void OnRender()=0;
 
-protected:
 	void FlushCommandQueue();
 	void FlushCommandQueue(UINT64 fenceValue);
 	D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView()const;
 	D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView()const;
+
 private:
-	
+
 	void InitCommandObjects();
 	void InitSwapChain(HWND mHwnd);
 	void InitDescriptorHeaps();

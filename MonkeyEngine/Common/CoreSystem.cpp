@@ -9,7 +9,7 @@
 #include "CoreSystem.h"
 
 HWND CoreSystem::mCoreHwnd = nullptr;
-CoreGraphics* CoreSystem::mCoreGraphics = nullptr;
+CoreBase* CoreSystem::mCoreBase = nullptr;
 
 /// <summary>
 /// run main program
@@ -17,9 +17,9 @@ CoreGraphics* CoreSystem::mCoreGraphics = nullptr;
 /// <param name="mHinstance">core instance</param>
 /// <param name="cmdShow">show windows?</param>
 /// <returns>return result integer application</returns>
-int CoreSystem::Run(CoreGraphics* coreGraphics, HINSTANCE mHinstance, int cmdShow)
+int CoreSystem::Run(CoreBase* CoreBase, HINSTANCE mHinstance, int cmdShow)
 {
-    mCoreGraphics = coreGraphics;
+    mCoreBase = CoreBase;
     WNDCLASSEX wc = {};
     wc.cbSize = sizeof(WNDCLASSEX);
     wc.style = CS_HREDRAW | CS_VREDRAW;
@@ -46,7 +46,7 @@ int CoreSystem::Run(CoreGraphics* coreGraphics, HINSTANCE mHinstance, int cmdSho
         nullptr);
     ShowWindow(mCoreHwnd, cmdShow);
 
-    coreGraphics->InitDirect3D(mCoreHwnd);
+    CoreBase->InitDirect3D(mCoreHwnd);
 
     MSG msg = {};
     while (msg.message != WM_QUIT) {
@@ -55,7 +55,7 @@ int CoreSystem::Run(CoreGraphics* coreGraphics, HINSTANCE mHinstance, int cmdSho
             DispatchMessage(&msg);
         }
         else {
-            mCoreGraphics->Loop();
+            mCoreBase->Loop();
         }
     }
 
@@ -83,11 +83,11 @@ LRESULT CoreSystem::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
         PostQuitMessage(0);
         return 0;
     case WM_SIZE:
-        mCoreGraphics->mClientWidth = LOWORD(lParam);
-        mCoreGraphics->mClientHeight = HIWORD(lParam);
+        mCoreBase->mClientWidth = LOWORD(lParam);
+        mCoreBase->mClientHeight = HIWORD(lParam);
         return 0;
     case WM_EXITSIZEMOVE:
-        mCoreGraphics->OnReset();
+        mCoreBase->GetCoreGraphics()->OnReset();
         return 0;
     default:
         return DefWindowProc(hWnd, msg, wParam, lParam);

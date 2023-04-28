@@ -3,10 +3,10 @@
 CoreGraphics::~CoreGraphics()
 {
 	FlushCommandQueue();
-	
+
 }
 
-CoreGraphics::CoreGraphics(int width, int height, bool fullscreen):mClientWidth(width),mClientHeight(height),mFullsccreen(fullscreen)
+CoreGraphics::CoreGraphics(int width, int height, bool fullscreen) :mClientWidth(width), mClientHeight(height), mFullsccreen(fullscreen)
 {
 	mScissorRect = {};
 	mViewPort = {};
@@ -15,11 +15,11 @@ CoreGraphics::CoreGraphics(int width, int height, bool fullscreen):mClientWidth(
 void CoreGraphics::InitDirect3D(HWND mHwnd)
 {
 #if defined(DEBUG)||defined(_DEBUG)
-{
-	Microsoft::WRL::ComPtr<ID3D12Debug> mDebug;
-	ExceptionFuse(D3D12GetDebugInterface(IID_PPV_ARGS(mDebug.GetAddressOf())));
-	mDebug->EnableDebugLayer();
-}
+	{
+		Microsoft::WRL::ComPtr<ID3D12Debug> mDebug;
+		ExceptionFuse(D3D12GetDebugInterface(IID_PPV_ARGS(mDebug.GetAddressOf())));
+		mDebug->EnableDebugLayer();
+	}
 #endif
 	ExceptionFuse(CreateDXGIFactory2(0, IID_PPV_ARGS(mFactory.GetAddressOf())));
 
@@ -32,7 +32,7 @@ void CoreGraphics::InitDirect3D(HWND mHwnd)
 
 	mDsvHeapSize = mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 	mRtvHeapSize = mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	mCbvSrvUavheapSize= mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	mCbvSrvUavheapSize = mDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 	mDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(mFence.GetAddressOf()));
 
@@ -42,7 +42,6 @@ void CoreGraphics::InitDirect3D(HWND mHwnd)
 	InitDescriptorHeaps();
 
 	OnReset();
-	OnInitialize();
 }
 
 
@@ -52,7 +51,7 @@ void CoreGraphics::FlushCommandQueue()
 	mFenceCount++;
 	mCommandQueue->Signal(mFence.Get(), mFenceCount);
 	//ExceptionFuse(mCommandQueue->Signal(mFenceCount));
-	
+
 	if (mFence->GetCompletedValue() < mFenceCount) {
 		HANDLE eventHandle = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
 		if (eventHandle == nullptr)
@@ -79,7 +78,7 @@ void CoreGraphics::OnReset()
 	if (!mDevice)
 		return;
 	FlushCommandQueue();
-//	mCommandAllocator->Reset();
+	//	mCommandAllocator->Reset();
 	ExceptionFuse(mGraphicsCommandList->Reset(mCommandAllocator.Get(), nullptr));
 	//reset buffers
 	for (int i = 0; i < mFrameCount; i++)
@@ -98,7 +97,7 @@ void CoreGraphics::OnReset()
 		mRtvHandle.Offset(1, mRtvHeapSize);
 	}
 
-	D3D12_RESOURCE_DESC mDsvDesc = CD3DX12_RESOURCE_DESC::Tex2D(mDepthStencilFormat,mClientWidth,mClientHeight,1,0);
+	D3D12_RESOURCE_DESC mDsvDesc = CD3DX12_RESOURCE_DESC::Tex2D(mDepthStencilFormat, mClientWidth, mClientHeight, 1, 0);
 	mDsvDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
 	D3D12_CLEAR_VALUE clearValue;
@@ -109,10 +108,10 @@ void CoreGraphics::OnReset()
 
 	mDevice->CreateCommittedResource(
 		&heapProperties,
-		D3D12_HEAP_FLAG_NONE, 
-		&mDsvDesc, 
-		D3D12_RESOURCE_STATE_DEPTH_WRITE, 
-		&clearValue, 
+		D3D12_HEAP_FLAG_NONE,
+		&mDsvDesc,
+		D3D12_RESOURCE_STATE_DEPTH_WRITE,
+		&clearValue,
 		IID_PPV_ARGS(mDepthStencilBuffer.GetAddressOf()));
 
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsvd = {};
@@ -122,7 +121,7 @@ void CoreGraphics::OnReset()
 	mDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), &dsvd, DepthStencilView());
 
 	mGraphicsCommandList->Close();
-	ID3D12CommandList* cmdList[] = {mGraphicsCommandList.Get()};
+	ID3D12CommandList* cmdList[] = { mGraphicsCommandList.Get() };
 	mCommandQueue->ExecuteCommandLists(_countof(cmdList), cmdList);
 	FlushCommandQueue();
 	mViewPort.Height = static_cast<float>(mClientHeight);
@@ -134,13 +133,6 @@ void CoreGraphics::OnReset()
 
 	mScissorRect = { 0,0,mClientWidth,mClientHeight };
 
-}
-
-void CoreGraphics::Loop()
-{
-	OnUpdate();
-	OnRender();
-	mCurrFrame = (mCurrFrame + 1) % mFrameCount;
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE CoreGraphics::CurrentBackBufferView() const
@@ -206,5 +198,5 @@ void CoreGraphics::InitDescriptorHeaps()
 
 	ExceptionFuse(mDevice->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(mRtvHeap.GetAddressOf())));
 	ExceptionFuse(mDevice->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(mDsvHeap.GetAddressOf())));
-	
+
 }
