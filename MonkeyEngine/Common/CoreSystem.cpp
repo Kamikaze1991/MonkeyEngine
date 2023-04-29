@@ -55,6 +55,7 @@ int CoreSystem::Run(CoreEngine* CoreEngine, HINSTANCE mHinstance, int cmdShow)
             DispatchMessage(&msg);
         }
         else {
+            mCoreEngine->GetCoreTimer()->Tick();
             mCoreEngine->Loop();
         }
     }

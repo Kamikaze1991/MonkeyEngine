@@ -12,6 +12,7 @@ CoreEngine::CoreEngine(int width, int height, bool fullscreen):mClientWidth(widt
 void CoreEngine::InitDirect3D(HWND mHwnd)
 {
 	mGsx = new CoreGraphics(mClientWidth, mClientHeight, mFullsccreen);
+	mTimer = new CoreTimer();
 	mGsx->InitDirect3D(mHwnd);
 	OnInitialize();
 }
@@ -26,5 +27,10 @@ void CoreEngine::Loop()
 CoreGraphics* CoreEngine::GetCoreGraphics()
 {
 	return mGsx;
+}
+
+CoreTimer* CoreEngine::GetCoreTimer()
+{
+	return mTimer;
 }
 

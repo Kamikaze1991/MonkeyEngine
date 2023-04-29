@@ -2,11 +2,13 @@
 #define _CORE_ENGINE_H_
 #include "CoreUtil.h"
 #include "CoreGraphics.h"
+#include "CoreTimer.h"
 
 class CoreEngine {
 protected:
 
 	CoreGraphics* mGsx = nullptr;
+	CoreTimer* mTimer = nullptr;
 	int mCurrFrame = 0;
 	int mFrameCount = 2;
 	bool mFullsccreen = true;
@@ -24,5 +26,6 @@ public:
 	virtual void OnRender()=0;
 
 	CoreGraphics* GetCoreGraphics();
+	CoreTimer* GetCoreTimer();
 };
 #endif
