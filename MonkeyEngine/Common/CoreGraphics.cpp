@@ -82,7 +82,7 @@ void CoreGraphics::OnReset()
 	ExceptionFuse(mGraphicsCommandList->Reset(mCommandAllocator.Get(), nullptr));
 	//reset buffers
 	for (int i = 0; i < mFrameCount; i++)
-		mBackBuffer[i].Reset();
+		mRenderTargetBuffer[i].Reset();
 	mDepthStencilBuffer.Reset();
 	//resize swap chain
 	DXGI_SWAP_CHAIN_DESC sd = {};
@@ -92,20 +92,18 @@ void CoreGraphics::OnReset()
 	//rebuild buffers
 	CD3DX12_CPU_DESCRIPTOR_HANDLE mRtvHandle(mRtvHeap->GetCPUDescriptorHandleForHeapStart());
 	for (int i = 0; i < mFrameCount; i++) {
-		ExceptionFuse(mSwapChain->GetBuffer(i, IID_PPV_ARGS(mBackBuffer[i].GetAddressOf())));
-		mDevice->CreateRenderTargetView(mBackBuffer[i].Get(), nullptr, mRtvHandle);
+		ExceptionFuse(mSwapChain->GetBuffer(i, IID_PPV_ARGS(mRenderTargetBuffer[i].GetAddressOf())));
+		mDevice->CreateRenderTargetView(mRenderTargetBuffer[i].Get(), nullptr, mRtvHandle);
 		mRtvHandle.Offset(1, mRtvHeapSize);
 	}
-
-	D3D12_RESOURCE_DESC mDsvDesc = CD3DX12_RESOURCE_DESC::Tex2D(mDepthStencilFormat, mClientWidth, mClientHeight, 1, 0);
-	mDsvDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
 	D3D12_CLEAR_VALUE clearValue;
 	clearValue.DepthStencil.Depth = 1.0f;
 	clearValue.DepthStencil.Stencil = 0;
 	clearValue.Format = mDepthStencilFormat;
-	const D3D12_HEAP_PROPERTIES heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-
+	D3D12_HEAP_PROPERTIES heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+	D3D12_RESOURCE_DESC mDsvDesc = CD3DX12_RESOURCE_DESC::Tex2D(mDepthStencilFormat, mClientWidth, mClientHeight, 1, 0);
+	mDsvDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 	mDevice->CreateCommittedResource(
 		&heapProperties,
 		D3D12_HEAP_FLAG_NONE,

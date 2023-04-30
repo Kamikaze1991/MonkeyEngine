@@ -25,7 +25,7 @@ public:
 
 	static const int mFrameCount = 2;
 	int mCurrFrame = 0;
-	Microsoft::WRL::ComPtr<ID3D12Resource> mBackBuffer[mFrameCount];
+	Microsoft::WRL::ComPtr<ID3D12Resource> mRenderTargetBuffer[mFrameCount];
 	Microsoft::WRL::ComPtr<ID3D12Resource> mDepthStencilBuffer;
 
 	D3D12_VIEWPORT mViewPort;

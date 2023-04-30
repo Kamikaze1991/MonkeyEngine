@@ -11,10 +11,14 @@
 #include "ThirdParty/d3dx12.h"
 #include "CoreException.h"
 
+using namespace Microsoft::WRL;
+
 class CoreUtil {
 public:
     static std::wstring AnsiToWString(const std::string& str);
     static UINT CalcConstantBufferByteSize(UINT byteSize);
+    static ComPtr<ID3D12Resource> CreateDefaultBuffer(ComPtr<ID3D12GraphicsCommandList>& graphicsCommandList, ComPtr<ID3D12Device>& device, UINT64 byteSize, const void* initData, ComPtr<ID3D12Resource>& intermediateBuffer);
+
 };
 
 
