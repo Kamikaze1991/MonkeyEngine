@@ -49,11 +49,11 @@ public:
 	void FlushCommandQueue(UINT64 fenceValue);
 	D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView(int currFrame)const;
 	D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView()const;
+	void BuildSwapChain(HWND mHwnd, int clientWidth, int clientHeight);
 
 private:
 
 	void BuildCommandObjects();
-	void BuildSwapChain(HWND mHwnd, int clientWidth, int clientHeight);
 	void BuildMainDescriptorHeaps();
 };
 #endif
