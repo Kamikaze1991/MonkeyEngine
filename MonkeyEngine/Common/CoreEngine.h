@@ -7,7 +7,7 @@
 class CoreEngine {
 protected:
 
-	CoreGraphics* mGsx = nullptr;
+	CoreGraphics* mCoreGraphics = nullptr;
 	CoreTimer* mTimer = nullptr;
 	int mCurrFrame = 0;
 	int mFrameCount = 2;

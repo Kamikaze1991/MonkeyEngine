@@ -11,31 +11,31 @@ CoreEngine::CoreEngine(int width, int height, bool fullscreen):mClientWidth(widt
 
 void CoreEngine::InitDirect3D(HWND mHwnd)
 {
-	mGsx = new CoreGraphics();
+	mCoreGraphics = new CoreGraphics();
 	mTimer = new CoreTimer();
-	mGsx->InitDirect3D(mHwnd, mClientWidth, mClientHeight);
+	mCoreGraphics->InitDirect3D(mHwnd, mClientWidth, mClientHeight);
 	OnInitialize();
 }
 
 void CoreEngine::ResetEngine()
 {
-	mGsx->OnReset(mClientWidth, mClientHeight);
+	mCoreGraphics->OnReset(mClientWidth, mClientHeight);
 	mCurrFrame = 0;
 }
 
 Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> CoreEngine::GetEngineGraphicsCommandList()
 {
-	return mGsx->mGraphicsCommandList;
+	return mCoreGraphics->mGraphicsCommandList;
 }
 
 Microsoft::WRL::ComPtr<ID3D12CommandQueue> CoreEngine::GetEngineCommandQueue()
 {
-	return mGsx->mCommandQueue;
+	return mCoreGraphics->mCommandQueue;
 }
 
 Microsoft::WRL::ComPtr<IDXGISwapChain3> CoreEngine::GetEngineSwapChain()
 {
-	return mGsx->mSwapChain;
+	return mCoreGraphics->mSwapChain;
 }
 
 void CoreEngine::Loop()
@@ -47,7 +47,7 @@ void CoreEngine::Loop()
 
 CoreGraphics* CoreEngine::GetCoreGraphics()
 {
-	return mGsx;
+	return mCoreGraphics;
 }
 
 CoreTimer* CoreEngine::GetCoreTimer()

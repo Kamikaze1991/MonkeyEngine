@@ -12,11 +12,13 @@ private:
 public:
 	virtual void OnUpdate();
 	virtual void OnRender();
+	virtual void OnInitialize();
+	
 	void PopulateCommands();
 	~Crate();
 	Crate()=default;
 	Crate(int among);
-	virtual void OnInitialize();
+	
 private:
 	//specific funcions
 	void BuildFrameResurces();
