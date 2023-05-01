@@ -89,8 +89,9 @@ Estructura basica de un proyecto de inicio en visual C++ para poder implementar 
 ````
 
 ````
-ALGORITMOS
-Reiniciar ecosistema directx
+################ALGORITMOS#################
+_______Reiniciar ecosistema directx________
+
 1.invocamos un FlushCommandQueue
 2.reseteamos el graphis command List
 3.reseteamos los buffer
