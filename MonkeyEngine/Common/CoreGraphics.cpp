@@ -6,13 +6,13 @@ CoreGraphics::~CoreGraphics()
 
 }
 
-CoreGraphics::CoreGraphics(int width, int height, bool fullscreen) :mClientWidth(width), mClientHeight(height), mFullsccreen(fullscreen)
+CoreGraphics::CoreGraphics(bool fullscreen) :mFullsccreen(fullscreen)
 {
 	mScissorRect = {};
 	mViewPort = {};
 }
 
-void CoreGraphics::InitDirect3D(HWND mHwnd)
+void CoreGraphics::InitDirect3D(HWND mHwnd, int clientWidth, int clientHeight)
 {
 #if defined(DEBUG)||defined(_DEBUG)
 	{
@@ -38,10 +38,10 @@ void CoreGraphics::InitDirect3D(HWND mHwnd)
 
 
 	BuildCommandObjects();
-	BuildSwapChain(mHwnd);
+	BuildSwapChain(mHwnd,clientWidth,clientHeight);
 	BuildMainDescriptorHeaps();
 
-	OnReset();
+	OnReset(clientWidth,clientHeight);
 }
 
 
@@ -73,7 +73,7 @@ void CoreGraphics::FlushCommandQueue(UINT64 fenceValue)
 	}
 }
 
-void CoreGraphics::OnReset()
+void CoreGraphics::OnReset(int clientWidth, int clientHeight)
 {
 	if (!mDevice)
 		return;
@@ -87,8 +87,7 @@ void CoreGraphics::OnReset()
 	//resize swap chain
 	DXGI_SWAP_CHAIN_DESC sd = {};
 	mSwapChain->GetDesc(&sd);
-	ExceptionFuse(mSwapChain->ResizeBuffers(mFrameCount, mClientWidth, mClientHeight, mSwapChainFormat, sd.Flags));
-	mCurrFrame = 0;
+	ExceptionFuse(mSwapChain->ResizeBuffers(mFrameCount, clientWidth, clientHeight, mSwapChainFormat, sd.Flags));
 	//rebuild buffers
 	CD3DX12_CPU_DESCRIPTOR_HANDLE mRtvHandle(mRtvHeap->GetCPUDescriptorHandleForHeapStart());
 	for (int i = 0; i < mFrameCount; i++) {
@@ -102,7 +101,7 @@ void CoreGraphics::OnReset()
 	clearValue.DepthStencil.Stencil = 0;
 	clearValue.Format = mDepthStencilFormat;
 	D3D12_HEAP_PROPERTIES heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-	D3D12_RESOURCE_DESC mDsvDesc = CD3DX12_RESOURCE_DESC::Tex2D(mDepthStencilFormat, mClientWidth, mClientHeight, 1, 0);
+	D3D12_RESOURCE_DESC mDsvDesc = CD3DX12_RESOURCE_DESC::Tex2D(mDepthStencilFormat, clientWidth, clientHeight, 1, 0);
 	mDsvDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 	mDevice->CreateCommittedResource(
 		&heapProperties,
@@ -122,20 +121,20 @@ void CoreGraphics::OnReset()
 	ID3D12CommandList* cmdList[] = { mGraphicsCommandList.Get() };
 	mCommandQueue->ExecuteCommandLists(_countof(cmdList), cmdList);
 	FlushCommandQueue();
-	mViewPort.Height = static_cast<float>(mClientHeight);
-	mViewPort.Width = static_cast<float>(mClientWidth);
+	mViewPort.Height = static_cast<float>(clientHeight);
+	mViewPort.Width = static_cast<float>(clientWidth);
 	mViewPort.MaxDepth = 1000.0f;
 	mViewPort.MinDepth = 1.0f;
 	mViewPort.TopLeftX = 0;
 	mViewPort.TopLeftY = 0;
 
-	mScissorRect = { 0,0,mClientWidth,mClientHeight };
+	mScissorRect = { 0,0,clientWidth,clientHeight };
 
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE CoreGraphics::CurrentBackBufferView() const
+D3D12_CPU_DESCRIPTOR_HANDLE CoreGraphics::CurrentBackBufferView(int currFrame) const
 {
-	return CD3DX12_CPU_DESCRIPTOR_HANDLE(mRtvHeap->GetCPUDescriptorHandleForHeapStart(), mCurrFrame, mRtvHeapSize);
+	return CD3DX12_CPU_DESCRIPTOR_HANDLE(mRtvHeap->GetCPUDescriptorHandleForHeapStart(), currFrame, mRtvHeapSize);
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE CoreGraphics::DepthStencilView() const
@@ -161,7 +160,7 @@ void CoreGraphics::BuildCommandObjects()
 /// Swap chain initialization
 /// </summary>
 /// <param name="mHwnd">Windows handlet</param>
-void CoreGraphics::BuildSwapChain(HWND mHwnd)
+void CoreGraphics::BuildSwapChain(HWND mHwnd, int clientWidth, int clientHeight)
 {
 	mSwapChain.Reset();
 	Microsoft::WRL::ComPtr<IDXGISwapChain1> localSwapChain;
@@ -169,10 +168,9 @@ void CoreGraphics::BuildSwapChain(HWND mHwnd)
 	swapChainDesc.BufferCount = mFrameCount;
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapChainDesc.Format = mSwapChainFormat;
-	swapChainDesc.Height = mClientHeight;
-	swapChainDesc.Width = mClientWidth;
+	swapChainDesc.Height = clientHeight;
+	swapChainDesc.Width = clientWidth;
 	swapChainDesc.SampleDesc.Count = 1;
-	swapChainDesc.Flags = 0;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	ExceptionFuse(mFactory->CreateSwapChainForHwnd(mCommandQueue.Get(), mHwnd, &swapChainDesc, nullptr, nullptr, &localSwapChain));
 	ExceptionFuse(localSwapChain.As(&mSwapChain));

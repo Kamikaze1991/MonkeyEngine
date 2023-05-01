@@ -84,13 +84,12 @@ LRESULT CoreSystem::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
         PostQuitMessage(0);
         return 0;
     case WM_SIZE:
-        if (mCoreEngine->GetCoreGraphics()) {
-            mCoreEngine->GetCoreGraphics()->mClientWidth = LOWORD(lParam);
-            mCoreEngine->GetCoreGraphics()->mClientHeight = HIWORD(lParam);
-        }
+            mCoreEngine->mClientWidth = LOWORD(lParam);
+            mCoreEngine->mClientHeight = HIWORD(lParam);
         return 0;
     case WM_EXITSIZEMOVE:
-        mCoreEngine->GetCoreGraphics()->OnReset();
+        mCoreEngine->GetCoreGraphics()->OnReset(mCoreEngine->mClientWidth, mCoreEngine->mClientHeight);
+        mCoreEngine->ResetEngine();
         return 0;
     default:
         return DefWindowProc(hWnd, msg, wParam, lParam);

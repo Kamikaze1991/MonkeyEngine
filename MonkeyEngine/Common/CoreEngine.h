@@ -20,6 +20,7 @@ public:
 	~CoreEngine();
 	CoreEngine(int width, int height, bool fullscreen);
 	void InitDirect3D(HWND mHwnd);
+	void ResetEngine();
 	virtual void Loop();
 	virtual void OnInitialize()=0;
 	virtual void OnUpdate()=0;

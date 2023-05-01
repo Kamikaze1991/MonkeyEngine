@@ -24,14 +24,12 @@ public:
 	UINT mCbvSrvUavheapSize = 0;
 
 	static const int mFrameCount = 2;
-	int mCurrFrame = 0;
 	Microsoft::WRL::ComPtr<ID3D12Resource> mRenderTargetBuffer[mFrameCount];
 	Microsoft::WRL::ComPtr<ID3D12Resource> mDepthStencilBuffer;
 
 	D3D12_VIEWPORT mViewPort;
 	D3D12_RECT mScissorRect;
 
-	bool mPause = false;
 
 	DXGI_FORMAT mSwapChainFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 	DXGI_FORMAT mDepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -39,24 +37,23 @@ public:
 	bool mFullsccreen = true;
 
 public:
-	int mClientWidth = 800;
-	int mClientHeight = 600;
+	
 
 	CoreGraphics() = default;
 	~CoreGraphics();
-	CoreGraphics(int width, int height, bool fullscreen);
-	void InitDirect3D(HWND mHwnd);
-	void OnReset();
+	CoreGraphics(bool fullscreen);
+	void InitDirect3D(HWND mHwnd, int clientWidth, int clientHeight);
+	void OnReset(int clientWidth, int clientHeight);
 
 	void FlushCommandQueue();
 	void FlushCommandQueue(UINT64 fenceValue);
-	D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView()const;
+	D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView(int currFrame)const;
 	D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView()const;
 
 private:
 
 	void BuildCommandObjects();
-	void BuildSwapChain(HWND mHwnd);
+	void BuildSwapChain(HWND mHwnd, int clientWidth, int clientHeight);
 	void BuildMainDescriptorHeaps();
 };
 #endif

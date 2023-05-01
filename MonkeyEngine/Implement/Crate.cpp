@@ -6,7 +6,16 @@ void Crate::OnUpdate()
 	mCurrFrameResourceIndex = (mCurrFrameResourceIndex + 1) % 3;
 	mCurrFrameResource = mFrameResources[mCurrFrameResourceIndex].get();
 	
-	mGsx->FlushCommandQueue(mCurrFrameResource->mFrameFenceCount);
+
+	if (mCurrFrameResource->mFrameFenceCount != 0 && mGsx->mFence->GetCompletedValue() < mCurrFrameResource->mFrameFenceCount)
+	{
+		HANDLE eventHandle = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
+		ExceptionFuse(mGsx->mFence->SetEventOnCompletion(mCurrFrameResource->mFrameFenceCount, eventHandle));
+		WaitForSingleObject(eventHandle, INFINITE);
+		CloseHandle(eventHandle);
+	}
+
+	//mGsx->FlushCommandQueue(mCurrFrameResource->mFrameFenceCount);
 }
 
 void Crate::OnRender()
@@ -32,10 +41,10 @@ void Crate::PopulateCommands()
 	ID3D12CommandList* mList[] = { mGsx->mGraphicsCommandList.Get() };
 	mGsx->mCommandQueue->ExecuteCommandLists(_countof(mList), mList);
 	mGsx->mSwapChain->Present(0, 0);
-	mCurrFrameResource->mFrameFenceCount = mGsx->mFenceCount++;
+	mCurrFrameResource->mFrameFenceCount = ++mGsx->mFenceCount;
 	mGsx->mCommandQueue->Signal(mGsx->mFence.Get(), mGsx->mFenceCount);
 
-	mGsx->FlushCommandQueue(mCurrFrameResource->mFrameFenceCount);
+	//mGsx->FlushCommandQueue(mCurrFrameResource->mFrameFenceCount);
 }
 
 Crate::~Crate()
@@ -51,8 +60,12 @@ Crate::Crate(int among):CoreEngine()
 
 void Crate::OnInitialize()
 {
+
+
+
 	for (int i = 0; i < 3; ++i)
 	{
 		mFrameResources.push_back(std::make_unique<FrameResource>(mGsx->mDevice.Get()));
 	}
+	mGsx->FlushCommandQueue();
 }

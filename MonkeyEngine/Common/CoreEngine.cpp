@@ -11,10 +11,15 @@ CoreEngine::CoreEngine(int width, int height, bool fullscreen):mClientWidth(widt
 
 void CoreEngine::InitDirect3D(HWND mHwnd)
 {
-	mGsx = new CoreGraphics(mClientWidth, mClientHeight, mFullsccreen);
+	mGsx = new CoreGraphics(mFullsccreen);
 	mTimer = new CoreTimer();
-	mGsx->InitDirect3D(mHwnd);
+	mGsx->InitDirect3D(mHwnd, mClientWidth, mClientHeight);
 	OnInitialize();
+}
+
+void CoreEngine::ResetEngine()
+{
+	mCurrFrame = 0;
 }
 
 void CoreEngine::Loop()
