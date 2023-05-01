@@ -37,11 +37,8 @@ public:
 	bool mFullsccreen = true;
 
 public:
-	
-
-	CoreGraphics() = default;
 	~CoreGraphics();
-	CoreGraphics(bool fullscreen);
+	CoreGraphics();
 	void InitDirect3D(HWND mHwnd, int clientWidth, int clientHeight);
 	void OnReset(int clientWidth, int clientHeight);
 

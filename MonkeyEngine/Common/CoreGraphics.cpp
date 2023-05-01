@@ -6,7 +6,7 @@ CoreGraphics::~CoreGraphics()
 
 }
 
-CoreGraphics::CoreGraphics(bool fullscreen) :mFullsccreen(fullscreen)
+CoreGraphics::CoreGraphics()
 {
 	mScissorRect = {};
 	mViewPort = {};
