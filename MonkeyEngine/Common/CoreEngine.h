@@ -26,6 +26,11 @@ public:
 	virtual void OnUpdate()=0;
 	virtual void OnRender()=0;
 
+	//engine helpers
+	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> GetEngineGraphicsCommandList();
+	Microsoft::WRL::ComPtr<ID3D12CommandQueue> GetEngineCommandQueue();
+	Microsoft::WRL::ComPtr<IDXGISwapChain3> GetEngineSwapChain();
+
 	CoreGraphics* GetCoreGraphics();
 	CoreTimer* GetCoreTimer();
 };

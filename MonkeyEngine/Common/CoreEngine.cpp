@@ -22,6 +22,21 @@ void CoreEngine::ResetEngine()
 	mCurrFrame = 0;
 }
 
+Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> CoreEngine::GetEngineGraphicsCommandList()
+{
+	return mGsx->mGraphicsCommandList;
+}
+
+Microsoft::WRL::ComPtr<ID3D12CommandQueue> CoreEngine::GetEngineCommandQueue()
+{
+	return mGsx->mCommandQueue;
+}
+
+Microsoft::WRL::ComPtr<IDXGISwapChain3> CoreEngine::GetEngineSwapChain()
+{
+	return mGsx->mSwapChain;
+}
+
 void CoreEngine::Loop()
 {
 	OnUpdate();

@@ -11,8 +11,10 @@ void Crate::OnUpdate()
 	{
 		HANDLE eventHandle = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
 		ExceptionFuse(mGsx->mFence->SetEventOnCompletion(mCurrFrameResource->mFrameFenceCount, eventHandle));
-		WaitForSingleObject(eventHandle, INFINITE);
-		CloseHandle(eventHandle);
+		if (eventHandle) {
+			WaitForSingleObject(eventHandle, INFINITE);
+			CloseHandle(eventHandle);
+		}
 	}
 
 	//mGsx->FlushCommandQueue(mCurrFrameResource->mFrameFenceCount);
@@ -27,30 +29,29 @@ void Crate::PopulateCommands()
 {
 	auto mCurrCmd = mCurrFrameResource->mFrameCommandAllocator;
 	mCurrCmd->Reset();
-	mGsx->mGraphicsCommandList->Reset(mCurrCmd.Get(), nullptr);
-	const D3D12_RESOURCE_BARRIER rbInitial = CD3DX12_RESOURCE_BARRIER::Transition(mGsx->mRenderTargetBuffer[mCurrFrame].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-	mGsx->mGraphicsCommandList->ResourceBarrier(1, &rbInitial);
+	GetEngineGraphicsCommandList()->Reset(mCurrCmd.Get(), nullptr);
+	D3D12_RESOURCE_BARRIER rbInitial = CD3DX12_RESOURCE_BARRIER::Transition(mGsx->mRenderTargetBuffer[mCurrFrame].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	GetEngineGraphicsCommandList()->ResourceBarrier(1, &rbInitial);
 
 	CD3DX12_CPU_DESCRIPTOR_HANDLE descriptor(mGsx->mRtvHeap->GetCPUDescriptorHandleForHeapStart(), mCurrFrame, mGsx->mRtvHeapSize);
-	const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
-	mGsx->mGraphicsCommandList->ClearRenderTargetView(descriptor, clearColor, 0, nullptr);
-	const D3D12_RESOURCE_BARRIER rbFinal = CD3DX12_RESOURCE_BARRIER::Transition(mGsx->mRenderTargetBuffer[mCurrFrame].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-	mGsx->mGraphicsCommandList->ResourceBarrier(1, &rbFinal);
-	mGsx->mGraphicsCommandList->Close();
+	float clearColor[] = { 0.0f, 1.0f, 0.0f, 1.0f };
+	GetEngineGraphicsCommandList()->ClearRenderTargetView(descriptor, clearColor, 0, nullptr);
+	rbInitial = CD3DX12_RESOURCE_BARRIER::Transition(mGsx->mRenderTargetBuffer[mCurrFrame].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+	GetEngineGraphicsCommandList()->ResourceBarrier(1, &rbInitial);
+	GetEngineGraphicsCommandList()->Close();
 
-	ID3D12CommandList* mList[] = { mGsx->mGraphicsCommandList.Get() };
-	mGsx->mCommandQueue->ExecuteCommandLists(_countof(mList), mList);
-	mGsx->mSwapChain->Present(0, 0);
+	ID3D12CommandList* mList[] = { GetEngineGraphicsCommandList().Get() };
+	GetEngineCommandQueue()->ExecuteCommandLists(_countof(mList), mList);
+	GetEngineSwapChain()->Present(0, 0);
 	mCurrFrameResource->mFrameFenceCount = ++mGsx->mFenceCount;
-	mGsx->mCommandQueue->Signal(mGsx->mFence.Get(), mGsx->mFenceCount);
+	GetEngineCommandQueue()->Signal(mGsx->mFence.Get(), mGsx->mFenceCount);
 
 	//mGsx->FlushCommandQueue(mCurrFrameResource->mFrameFenceCount);
 }
 
 Crate::~Crate()
 {
-		mGsx->FlushCommandQueue();
-		mGsx->mCommandAllocator->Reset();
+		
 }
 
 Crate::Crate(int among):CoreEngine()
@@ -60,9 +61,6 @@ Crate::Crate(int among):CoreEngine()
 
 void Crate::OnInitialize()
 {
-
-
-
 	for (int i = 0; i < 3; ++i)
 	{
 		mFrameResources.push_back(std::make_unique<FrameResource>(mGsx->mDevice.Get()));
