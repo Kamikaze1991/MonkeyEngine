@@ -88,6 +88,7 @@ Estructura basica de un proyecto de inicio en visual C++ para poder implementar 
 ```
 ````
 
+````
 ALGORITMOS
 Reiniciar ecosistema directx
 1.invocamos un FlushCommandQueue
@@ -106,3 +107,4 @@ Reiniciar ecosistema directx
 14.invocamos un FlushCommandQueue
 15.Establecemos el viewport
 16.establecemos el ScissorRect
+````
