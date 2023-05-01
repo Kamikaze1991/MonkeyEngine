@@ -33,5 +33,7 @@ public:
 
 	CoreGraphics* GetCoreGraphics();
 	CoreTimer* GetCoreTimer();
+
+	void WindowRedimention(int width, int height);
 };
 #endif

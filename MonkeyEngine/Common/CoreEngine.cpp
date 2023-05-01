@@ -19,6 +19,7 @@ void CoreEngine::InitDirect3D(HWND mHwnd)
 
 void CoreEngine::ResetEngine()
 {
+	mGsx->OnReset(mClientWidth, mClientHeight);
 	mCurrFrame = 0;
 }
 
@@ -52,5 +53,11 @@ CoreGraphics* CoreEngine::GetCoreGraphics()
 CoreTimer* CoreEngine::GetCoreTimer()
 {
 	return mTimer;
+}
+
+void CoreEngine::WindowRedimention(int width, int height)
+{
+	mClientWidth = width;
+	mClientHeight = height;
 }
 
