@@ -87,3 +87,22 @@ Estructura basica de un proyecto de inicio en visual C++ para poder implementar 
 
 ```
 ````
+
+ALGORITMOS
+Reiniciar ecosistema directx
+1.invocamos un FlushCommandQueue
+2.reseteamos el graphis command List
+3.reseteamos los buffer
+4.obtenemos SwapChainDesc del swapChain
+5.invocamos metodo de resize del swapchain
+6.Creamos RenderTargetView
+7.Creamos parametros D3D12_CLEAR_VALUE para el buffer depthstencil
+8.Creamos el recurso para el buffer DepthStencil. con la opcion D3D12_RESOURCE_STATE_DEPTH_WRITE
+9.Creamos la descripcion para el DeptStencilView
+10.Creamos el DepthStencilView
+11.establecemos CLOSE al GraphicsCommandList
+12.Preparamos los comandos 
+13.Ejecutamos los comandos
+14.invocamos un FlushCommandQueue
+15.Establecemos el viewport
+16.establecemos el ScissorRect
