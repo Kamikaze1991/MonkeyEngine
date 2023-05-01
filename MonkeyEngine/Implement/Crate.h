@@ -6,7 +6,6 @@
 
 class Crate :public CoreEngine {
 private:
-	int error;
 	std::vector<std::unique_ptr<FrameResource>> mFrameResources;
 	FrameResource* mCurrFrameResource = nullptr;
 	int mCurrFrameResourceIndex = 0;
@@ -18,7 +17,9 @@ public:
 	Crate()=default;
 	Crate(int among);
 	virtual void OnInitialize();
-	int GetError() { return error; }
+private:
+	//specific funcions
+	void BuildFrameResurces();
 };
 
 #endif

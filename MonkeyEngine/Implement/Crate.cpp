@@ -2,7 +2,6 @@
 
 void Crate::OnUpdate()
 {
-
 	mCurrFrameResourceIndex = (mCurrFrameResourceIndex + 1) % 3;
 	mCurrFrameResource = mFrameResources[mCurrFrameResourceIndex].get();
 	
@@ -42,7 +41,7 @@ void Crate::PopulateCommands()
 
 	ID3D12CommandList* mList[] = { GetEngineGraphicsCommandList().Get() };
 	GetEngineCommandQueue()->ExecuteCommandLists(_countof(mList), mList);
-	GetEngineSwapChain()->Present(0, 0);
+	GetEngineSwapChain()->Present(1, 0);
 	mCurrFrameResource->mFrameFenceCount = ++mGsx->mFenceCount;
 	GetEngineCommandQueue()->Signal(mGsx->mFence.Get(), mGsx->mFenceCount);
 
@@ -56,14 +55,19 @@ Crate::~Crate()
 
 Crate::Crate(int among):CoreEngine()
 {
-	error = among;
+	
 }
 
 void Crate::OnInitialize()
+{
+	BuildFrameResurces();
+	mGsx->FlushCommandQueue();
+}
+
+void Crate::BuildFrameResurces()
 {
 	for (int i = 0; i < 3; ++i)
 	{
 		mFrameResources.push_back(std::make_unique<FrameResource>(mGsx->mDevice.Get()));
 	}
-	mGsx->FlushCommandQueue();
 }
