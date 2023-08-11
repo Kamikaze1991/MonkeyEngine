@@ -13,6 +13,7 @@ protected:
 	CoreGraphics* mCoreGraphics = nullptr;
 	CoreTimer* mTimer = nullptr;
 	ImGuiIO *io=nullptr;
+	HWND gMainHwnd;
 	int mCurrFrame = 0;
 	int mFrameCount = 2;
 	bool mFullsccreen = true;
@@ -34,6 +35,7 @@ public:
 	void ResetEngine();
 	virtual void Loop();
 	virtual void OnInitialize()=0;
+	virtual void OnInitializeUi() = 0;
 	virtual void OnUpdate()=0;
 	virtual void OnRender()=0;
 
