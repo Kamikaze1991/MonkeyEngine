@@ -67,7 +67,7 @@ HWND CoreSystem::GetHwnd()
 {
     return mCoreHwnd;
 }
-
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 /// <summary>
 /// Windows procedures
 /// </summary>
@@ -78,6 +78,9 @@ HWND CoreSystem::GetHwnd()
 /// <returns>return result of the procesure</returns>
 LRESULT CoreSystem::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+        return true;
+
     switch (msg)
     {
     case WM_DESTROY:

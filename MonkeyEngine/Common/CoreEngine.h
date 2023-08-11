@@ -1,5 +1,8 @@
 #ifndef _CORE_ENGINE_H_
 #define _CORE_ENGINE_H_
+#include "../Common/ThirdParty/imgui/imgui.h"
+#include "../Common/ThirdParty/imguibackends/imgui_impl_win32.h"
+#include "../Common/ThirdParty/imguibackends/imgui_impl_dx12.h"
 #include "CoreUtil.h"
 #include "CoreGraphics.h"
 #include "CoreTimer.h"
@@ -9,9 +12,17 @@ protected:
 
 	CoreGraphics* mCoreGraphics = nullptr;
 	CoreTimer* mTimer = nullptr;
+	ImGuiIO *io=nullptr;
 	int mCurrFrame = 0;
 	int mFrameCount = 2;
 	bool mFullsccreen = true;
+#pragma region variables imgui
+	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	bool show_demo_window = true;
+	bool show_another_window = false;
+#pragma endregion
+
+	
 public:
 	int mClientWidth = 800;
 	int mClientHeight = 600;

@@ -19,6 +19,7 @@ public:
 
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mRtvHeap;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mDsvHeap;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mCbvSrvUavHeap;
 	UINT mRtvHeapSize = 0;
 	UINT mDsvHeapSize = 0;
 	UINT mCbvSrvUavheapSize = 0;
@@ -46,10 +47,9 @@ public:
 	void FlushCommandQueue(UINT64 fenceValue);
 	D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView(int currFrame)const;
 	D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView()const;
-	void BuildSwapChain(HWND mHwnd, int clientWidth, int clientHeight);
-
 private:
 
+	void BuildSwapChain(HWND mHwnd, int clientWidth, int clientHeight);
 	void BuildCommandObjects();
 	void BuildMainDescriptorHeaps();
 };

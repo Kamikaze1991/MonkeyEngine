@@ -192,7 +192,13 @@ void CoreGraphics::BuildMainDescriptorHeaps()
 	rtvHeapDesc.NumDescriptors = mFrameCount;
 	rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
+	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	srvHeapDesc.NumDescriptors = 1;
+	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+
 	ExceptionFuse(mDevice->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(mRtvHeap.GetAddressOf())));
 	ExceptionFuse(mDevice->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(mDsvHeap.GetAddressOf())));
+	ExceptionFuse(mDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(mCbvSrvUavHeap.GetAddressOf())));
 
 }
