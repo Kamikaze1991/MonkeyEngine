@@ -4241,11 +4241,6 @@ ImGuiIO& ImGui::GetIO()
     return GImGui->IO;
 }
 
-void ImGui::SetIO(ImGuiIO* io)
-{
-    GImGui->IO = (*io);
-}
-
 // Pass this to your backend rendering function! Valid after Render() and until the next call to NewFrame()
 ImDrawData* ImGui::GetDrawData()
 {

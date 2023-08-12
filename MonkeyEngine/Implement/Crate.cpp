@@ -81,7 +81,6 @@ void Crate::OnInitializeUi()
 	ImGui_ImplDX12_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-	ImGui::SetIO(io);
 	if (show_demo_window)
 		ImGui::ShowDemoWindow(&show_demo_window);
 
