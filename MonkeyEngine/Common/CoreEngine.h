@@ -13,20 +13,20 @@ protected:
 	CoreGraphics* mCoreGraphics = nullptr;
 	CoreTimer* mTimer = nullptr;
 	ImGuiIO *io=nullptr;
-	HWND gMainHwnd;
-	int mCurrFrame = 0;
-	int mFrameCount = 2;
-	bool mFullsccreen = true;
+	HWND MainHwnd;
+	int CurrFrame = 0;
+	int FrameCount = 2;
+	bool FullScreen = true;
 #pragma region variables imgui
-	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-	bool show_demo_window = true;
-	bool show_another_window = false;
+	ImVec4 ClearColor = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	bool ShowDemoWindow = true;
+	bool ShowAnotherWindow = false;
 #pragma endregion
 
 	
 public:
-	int mClientWidth = 800;
-	int mClientHeight = 600;
+	int ClientWidth = 800;
+	int ClientHeight = 600;
 
 	CoreEngine() = default;
 	~CoreEngine();

@@ -11,10 +11,10 @@ public:
 	CoreException(HRESULT hr, const std::wstring& functionName, const std::wstring& fileName, int lineNumber);
 	std::wstring ProcessMessage()const;
 public:
-	HRESULT mErrorCode = S_OK;
-	std::wstring mFunctionName;
-	std::wstring mFileName;
-	int mLineNumber = -1;
+	HRESULT ErrorCode = S_OK;
+	std::wstring FunctionName;
+	std::wstring FileName;
+	int LineNumber = -1;
 };
 
 #endif

@@ -8,8 +8,8 @@
 
 #include "CoreSystem.h"
 
-HWND CoreSystem::mCoreHwnd = nullptr;
-CoreEngine* CoreSystem::mCoreEngine = nullptr;
+HWND CoreSystem::CoreHwnd = nullptr;
+CoreEngine* CoreSystem::MainCoreEngine = nullptr;
 
 /// <summary>
 /// run main program
@@ -19,7 +19,7 @@ CoreEngine* CoreSystem::mCoreEngine = nullptr;
 /// <returns>return result integer application</returns>
 int CoreSystem::Run(CoreEngine* CoreEngine, HINSTANCE mHinstance, int cmdShow)
 {
-    mCoreEngine = CoreEngine;
+    MainCoreEngine = CoreEngine;
     WNDCLASSEX wc = {};
     wc.cbSize = sizeof(WNDCLASSEX);
     wc.style = CS_HREDRAW | CS_VREDRAW;
@@ -32,7 +32,7 @@ int CoreSystem::Run(CoreEngine* CoreEngine, HINSTANCE mHinstance, int cmdShow)
     RECT ClientRect = { 0,0,500,500 };
     AdjustWindowRect(&ClientRect, WS_OVERLAPPEDWINDOW, FALSE);
 
-    mCoreHwnd = CreateWindow(
+    CoreHwnd = CreateWindow(
         wc.lpszClassName,
         L"CoreWindows",
         WS_OVERLAPPEDWINDOW,
@@ -44,9 +44,9 @@ int CoreSystem::Run(CoreEngine* CoreEngine, HINSTANCE mHinstance, int cmdShow)
         nullptr,
         mHinstance,
         nullptr);
-    ShowWindow(mCoreHwnd, cmdShow);
+    ShowWindow(CoreHwnd, cmdShow);
 
-    CoreEngine->InitDirect3D(mCoreHwnd);
+    CoreEngine->InitDirect3D(CoreHwnd);
 
     MSG msg = {};
     while (msg.message != WM_QUIT) {
@@ -55,8 +55,8 @@ int CoreSystem::Run(CoreEngine* CoreEngine, HINSTANCE mHinstance, int cmdShow)
             DispatchMessage(&msg);
         }
         else {
-            mCoreEngine->GetCoreTimer()->Tick();
-            mCoreEngine->Loop();
+            MainCoreEngine->GetCoreTimer()->Tick();
+            MainCoreEngine->Loop();
         }
     }
 
@@ -65,7 +65,7 @@ int CoreSystem::Run(CoreEngine* CoreEngine, HINSTANCE mHinstance, int cmdShow)
 
 HWND CoreSystem::GetHwnd()
 {
-    return mCoreHwnd;
+    return CoreHwnd;
 }
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 /// <summary>
@@ -87,12 +87,12 @@ LRESULT CoreSystem::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
         PostQuitMessage(0);
         return 0;
     case WM_SIZE:
-        mCoreEngine->WindowRedimention(LOWORD(lParam), HIWORD(lParam));    
-        if (mCoreEngine->GetCoreGraphics())
-            mCoreEngine->ResetEngine();     
+        MainCoreEngine->WindowRedimention(LOWORD(lParam), HIWORD(lParam));    
+        if (MainCoreEngine->GetCoreGraphics())
+            MainCoreEngine->ResetEngine();     
         return 0;
     case WM_EXITSIZEMOVE:
-        mCoreEngine->ResetEngine();
+        MainCoreEngine->ResetEngine();
         return 0;
     default:
         return DefWindowProc(hWnd, msg, wParam, lParam);

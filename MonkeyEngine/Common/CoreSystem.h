@@ -16,8 +16,8 @@
 /// </summary>
 class CoreSystem {
 private:
-	static HWND mCoreHwnd;
-	static CoreEngine* mCoreEngine;
+	static HWND CoreHwnd;
+	static CoreEngine* MainCoreEngine;
 public:
 	static int Run(CoreEngine* CoreEngine, HINSTANCE mHinstance, int cmdShow);
 	static HWND GetHwnd();

@@ -6,10 +6,10 @@
 
 class Crate :public CoreEngine {
 private:
-	std::vector<std::unique_ptr<FrameResource>> mFrameResources;
-	FrameResource* mCurrFrameResource = nullptr;
-	ComPtr<ID3D12DescriptorHeap> mSrvDescriptorHeap = nullptr;
-	int mCurrFrameResourceIndex = 0;
+	std::vector<std::unique_ptr<FrameResource>> FrameResources;
+	FrameResource* CurrFrameResource = nullptr;
+	ComPtr<ID3D12DescriptorHeap> ShadowResourceViewDescriptorHeap = nullptr;
+	int CurrentFrameResourceIndex = 0;
 public:
 	virtual void OnUpdate();
 	virtual void OnRender();

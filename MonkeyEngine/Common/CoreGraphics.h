@@ -6,35 +6,35 @@
 class CoreGraphics {
 public:
 #pragma region Directx Main Variables
-	Microsoft::WRL::ComPtr<ID3D12Device> mDevice;
-	Microsoft::WRL::ComPtr<IDXGIFactory4> mFactory;
-	Microsoft::WRL::ComPtr<IDXGISwapChain3> mSwapChain;
+	Microsoft::WRL::ComPtr<ID3D12Device> DeviceControl;
+	Microsoft::WRL::ComPtr<IDXGIFactory4> FactoryControl;
+	Microsoft::WRL::ComPtr<IDXGISwapChain3> SwapChainControl;
 
-	Microsoft::WRL::ComPtr<ID3D12Fence> mFence;
-	UINT mFenceCount = 0;
+	Microsoft::WRL::ComPtr<ID3D12Fence> FenceControl;
+	UINT FenceControlCount = 0;
 
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> mGraphicsCommandList;
-	Microsoft::WRL::ComPtr<ID3D12CommandQueue> mCommandQueue;
-	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> mCommandAllocator;
+	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> GraphicsCommandListControl;
+	Microsoft::WRL::ComPtr<ID3D12CommandQueue> CommandQueueControl;
+	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> CommandAllocatorControl;
 
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mRtvHeap;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mDsvHeap;
-	UINT mRtvHeapSize = 0;
-	UINT mDsvHeapSize = 0;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> RenderTargetViewHeap;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> DepthStencilViewHeap;
+	UINT RenderTargetViewHeapSize = 0;
+	UINT DepthStencilViewHeapSize = 0;
 	UINT mCbvSrvUavheapSize = 0;
 
-	static const int mFrameCount = 2;
-	Microsoft::WRL::ComPtr<ID3D12Resource> mRenderTargetBuffer[mFrameCount];
-	Microsoft::WRL::ComPtr<ID3D12Resource> mDepthStencilBuffer;
+	static const int FrameCount = 2;
+	Microsoft::WRL::ComPtr<ID3D12Resource> RenderTargetBuffer[FrameCount];
+	Microsoft::WRL::ComPtr<ID3D12Resource> DepthStencilBuffer;
 
-	D3D12_VIEWPORT mViewPort;
-	D3D12_RECT mScissorRect;
+	D3D12_VIEWPORT ViewPort;
+	D3D12_RECT ScissorRect;
 
 
-	DXGI_FORMAT mSwapChainFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+	DXGI_FORMAT SwapChainControlFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 	DXGI_FORMAT mDepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 #pragma endregion
-	bool mFullsccreen = true;
+	bool FullScreen = true;
 
 public:
 	~CoreGraphics();

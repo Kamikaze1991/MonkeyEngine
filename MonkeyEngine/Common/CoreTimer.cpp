@@ -2,81 +2,81 @@
 
 CoreTimer::CoreTimer()
 {
-    mSecondPerCount = 0.0f;
-    mDeltaTime = -1.0f;
-    mBaseTime = 0;
-    mPausedTime = 0;
-    mPrevTime = 0;
-    mCurrTime = 0;
-    mStopped = false;
-    mStopTime = 0;
+    SecondPerCount = 0.0f;
+    DeltaTime = -1.0f;
+    BaseTime = 0;
+    PausedTime = 0;
+    PrevTime = 0;
+    CurrTime = 0;
+    TimerStopped = false;
+    StopTime = 0;
 
     __int64 countsPerSec;
     QueryPerformanceFrequency((LARGE_INTEGER*)&countsPerSec);
-    mSecondPerCount = 1.0f / (double)countsPerSec;
+    SecondPerCount = 1.0f / (double)countsPerSec;
 }
 
 float CoreTimer::TotalTime() const
 {
-    if (mStopped) {
-        return (float)(((mStopTime - mPausedTime) - mBaseTime) * mSecondPerCount);
+    if (TimerStopped) {
+        return (float)(((StopTime - PausedTime) - BaseTime) * SecondPerCount);
     }
     else {
-        return (float)(((mCurrTime - mPausedTime) - mBaseTime) * mSecondPerCount);
+        return (float)(((CurrTime - PausedTime) - BaseTime) * SecondPerCount);
     }
 }
 
 float CoreTimer::DeltatIme() const
 {
-    return (float)mDeltaTime;
+    return (float)DeltaTime;
 }
 
 void CoreTimer::Reset()
 {
     __int64 currTime;
     QueryPerformanceCounter((LARGE_INTEGER*)&currTime);
-    mBaseTime = currTime;
-    mPrevTime = currTime;
-    mStopTime = 0;
-    mStopped = false;
+    BaseTime = currTime;
+    PrevTime = currTime;
+    StopTime = 0;
+    TimerStopped = false;
 }
 
 void CoreTimer::Start()
 {
     __int64 startTime;
     QueryPerformanceCounter((LARGE_INTEGER*)&startTime);
-    if (mStopped) {
-        mPausedTime += (startTime-mStopTime);
-        mStopTime = 0;
-        mStopped = false;
+    if (TimerStopped) {
+        PausedTime += (startTime-StopTime);
+        StopTime = 0;
+        TimerStopped = false;
     }
 
 }
 
 void CoreTimer::Stop()
 {
-    if (!mStopped) {
+    if (!TimerStopped) {
         __int64 currTime;
         QueryPerformanceCounter((LARGE_INTEGER*)&currTime);
-        mStopTime = currTime;
-        mStopped = true;
+        StopTime = currTime;
+        TimerStopped = true;
     }
 }
 
 void CoreTimer::Tick()
 {
-    if (mStopped)
+    if (TimerStopped)
     {
-        mDeltaTime = 0.0;
+        DeltaTime = 0.0;
         return;
     }
     __int64 currTime;
     QueryPerformanceCounter((LARGE_INTEGER*)&currTime);
-    mCurrTime = currTime;
-    mDeltaTime = (mCurrTime - mPrevTime) * mSecondPerCount;
-    mPrevTime = mCurrTime;
-    if (mDeltaTime < 0.0)
+    CurrTime = currTime;
+    DeltaTime = (CurrTime - PrevTime) * SecondPerCount;
+    PrevTime = CurrTime;
+    if (DeltaTime < 0.0)
     {
-        mDeltaTime = 0.0;
+        DeltaTime = 0.0;
     }
 }

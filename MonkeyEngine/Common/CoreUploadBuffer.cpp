@@ -15,28 +15,28 @@ CoreUploadBuffer<T>::CoreUploadBuffer(ID3D12Device *device, UINT elementCount, b
 			&CD3DX12_RESOURCE_DESC::Buffer(mElementByteSize * elementCount),
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
-			IID_PPV_ARGS(mUploadBuffer.GetAddressOf()))
+			IID_PPV_ARGS(UploadBuffer.GetAddressOf()))
 	);
 	
-	ExceptionFuse(mUploadBuffer->Map(0, nullptr, static_cast<void**>(&mMappedData)));
+	ExceptionFuse(UploadBuffer->Map(0, nullptr, static_cast<void**>(&MappedData)));
 }
 
 template<typename T>
 CoreUploadBuffer<T>::~CoreUploadBuffer()
 {
-	if (mUploadBuffer)
-		mUploadBuffer->Unmap(0, nullptr);
-	mMappedData = nullptr;
+	if (UploadBuffer)
+		UploadBuffer->Unmap(0, nullptr);
+	MappedData = nullptr;
 }
 
 template<typename T>
 void CoreUploadBuffer<T>::CopyData(int elementIndex, const T& data)
 {
-	memcpy(&mMappedData[elementIndex * mElementByteSize], &data, sizeof(T));
+	memcpy(&MappedData[elementIndex * mElementByteSize], &data, sizeof(T));
 }
 
 template<typename T>
 ID3D12Resource* CoreUploadBuffer<T>::GetUploadBuffer()
 {
-	return mUploadBuffer.Get();
+	return UploadBuffer.Get();
 }

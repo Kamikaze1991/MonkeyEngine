@@ -2,21 +2,21 @@
 
 void Crate::OnUpdate()
 {
-	mCurrFrameResourceIndex = (mCurrFrameResourceIndex + 1) % 3;
-	mCurrFrameResource = mFrameResources[mCurrFrameResourceIndex].get();
+	CurrentFrameResourceIndex = (CurrentFrameResourceIndex + 1) % 3;
+	CurrFrameResource = FrameResources[CurrentFrameResourceIndex].get();
 	
 
-	if (mCurrFrameResource->mFrameFenceCount != 0 && mCoreGraphics->mFence->GetCompletedValue() < mCurrFrameResource->mFrameFenceCount)
+	if (CurrFrameResource->mFrameFenceCount != 0 && mCoreGraphics->FenceControl->GetCompletedValue() < CurrFrameResource->mFrameFenceCount)
 	{
 		HANDLE eventHandle = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
-		ExceptionFuse(mCoreGraphics->mFence->SetEventOnCompletion(mCurrFrameResource->mFrameFenceCount, eventHandle));
+		ExceptionFuse(mCoreGraphics->FenceControl->SetEventOnCompletion(CurrFrameResource->mFrameFenceCount, eventHandle));
 		if (eventHandle) {
 			WaitForSingleObject(eventHandle, INFINITE);
 			CloseHandle(eventHandle);
 		}
 	}
 
-	//mCoreGraphics->FlushCommandQueue(mCurrFrameResource->mFrameFenceCount);
+	//mCoreGraphics->FlushCommandQueue(CurrFrameResource->mFrameFenceCount);
 }
 
 void Crate::OnRender()
@@ -26,36 +26,36 @@ void Crate::OnRender()
 
 void Crate::PopulateCommands()
 {
-	auto mCurrCmd = mCurrFrameResource->mFrameCommandAllocator;
+	auto mCurrCmd = CurrFrameResource->mFrameCommandAllocator;
 	mCurrCmd->Reset();
 	GetEngineGraphicsCommandList()->Reset(mCurrCmd.Get(), nullptr);
-	D3D12_RESOURCE_BARRIER rbInitial = CD3DX12_RESOURCE_BARRIER::Transition(mCoreGraphics->mRenderTargetBuffer[mCurrFrame].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	D3D12_RESOURCE_BARRIER rbInitial = CD3DX12_RESOURCE_BARRIER::Transition(mCoreGraphics->RenderTargetBuffer[CurrFrame].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	GetEngineGraphicsCommandList()->ResourceBarrier(1, &rbInitial);
-	CD3DX12_CPU_DESCRIPTOR_HANDLE descriptor(mCoreGraphics->mRtvHeap->GetCPUDescriptorHandleForHeapStart(), mCurrFrame, mCoreGraphics->mRtvHeapSize);
-	float clearColor[] = { clear_color.x/ clear_color.w,clear_color.y / clear_color.w, clear_color.z / clear_color.w, clear_color.w };
+	CD3DX12_CPU_DESCRIPTOR_HANDLE descriptor(mCoreGraphics->RenderTargetViewHeap->GetCPUDescriptorHandleForHeapStart(), CurrFrame, mCoreGraphics->RenderTargetViewHeapSize);
+	float clearColor[] = { ClearColor.x/ ClearColor.w,ClearColor.y / ClearColor.w, ClearColor.z / ClearColor.w, ClearColor.w };
 	GetEngineGraphicsCommandList()->ClearRenderTargetView(descriptor, clearColor, 0, nullptr);
 	GetEngineGraphicsCommandList()->ClearDepthStencilView(mCoreGraphics->DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-	D3D12_CPU_DESCRIPTOR_HANDLE currBackBuffer = mCoreGraphics->CurrentBackBufferView(mCurrFrame);
+	D3D12_CPU_DESCRIPTOR_HANDLE currBackBuffer = mCoreGraphics->CurrentBackBufferView(CurrFrame);
 	D3D12_CPU_DESCRIPTOR_HANDLE currDepthStencil = mCoreGraphics->DepthStencilView();
 	GetEngineGraphicsCommandList()->OMSetRenderTargets(1, &currBackBuffer, true, &currDepthStencil);
 
-	ID3D12DescriptorHeap* descriptorHeaps[] = { mSrvDescriptorHeap.Get() };
+	ID3D12DescriptorHeap* descriptorHeaps[] = { ShadowResourceViewDescriptorHeap.Get() };
 	GetEngineGraphicsCommandList()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
 	//GetEngineGraphicsCommandList()->SetDescriptorHeaps(1, &mCoreGraphics->mCbvSrvUavHeap);
 	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), GetEngineGraphicsCommandList().Get());
-	rbInitial = CD3DX12_RESOURCE_BARRIER::Transition(mCoreGraphics->mRenderTargetBuffer[mCurrFrame].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+	rbInitial = CD3DX12_RESOURCE_BARRIER::Transition(mCoreGraphics->RenderTargetBuffer[CurrFrame].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 	GetEngineGraphicsCommandList()->ResourceBarrier(1, &rbInitial);
 	GetEngineGraphicsCommandList()->Close();
 
 	ID3D12CommandList* mList[] = { GetEngineGraphicsCommandList().Get() };
 	GetEngineCommandQueue()->ExecuteCommandLists(_countof(mList), mList);
 	GetEngineSwapChain()->Present(1, 0);
-	mCurrFrameResource->mFrameFenceCount = ++mCoreGraphics->mFenceCount;
+	CurrFrameResource->mFrameFenceCount = ++mCoreGraphics->FenceControlCount;
 
-	GetEngineCommandQueue()->Signal(mCoreGraphics->mFence.Get(), mCoreGraphics->mFenceCount);
+	GetEngineCommandQueue()->Signal(mCoreGraphics->FenceControl.Get(), mCoreGraphics->FenceControlCount);
 
-	//mCoreGraphics->FlushCommandQueue(mCurrFrameResource->mFrameFenceCount);
+	//mCoreGraphics->FlushCommandQueue(CurrFrameResource->mFrameFenceCount);
 }
 
 Crate::~Crate()
@@ -81,8 +81,8 @@ void Crate::OnInitializeUi()
 	ImGui_ImplDX12_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-	if (show_demo_window)
-		ImGui::ShowDemoWindow(&show_demo_window);
+	if (ShowDemoWindow)
+		ImGui::ShowDemoWindow(&ShowDemoWindow);
 
 	{
 		static float f = 0.0f;
@@ -91,11 +91,11 @@ void Crate::OnInitializeUi()
 		ImGui::Begin("Hello, world!x");                          // Create a window called "Hello, world!" and append into it.
 
 		ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-		ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-		ImGui::Checkbox("Another Window", &show_another_window);
+		ImGui::Checkbox("Demo Window", &ShowDemoWindow);      // Edit bools storing our window open/close state
+		ImGui::Checkbox("Another Window", &ShowAnotherWindow);
 
 		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-		ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+		ImGui::ColorEdit3("clear color", (float*)&ClearColor); // Edit 3 floats representing a color
 
 		if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
 			counter++;
@@ -106,12 +106,12 @@ void Crate::OnInitializeUi()
 		ImGui::End();
 	}
 
-	if (show_another_window)
+	if (ShowAnotherWindow)
 	{
-		ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+		ImGui::Begin("Another Window", &ShowAnotherWindow);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
 		ImGui::Text("Hello from another window!");
 		if (ImGui::Button("Close Me"))
-			show_another_window = false;
+			ShowAnotherWindow = false;
 		ImGui::End();
 	}
 	ImGui::Render();
@@ -123,7 +123,7 @@ void Crate::BuildFrameResurces()
 {
 	for (int i = 0; i < 3; ++i)
 	{
-		mFrameResources.push_back(std::make_unique<FrameResource>(mCoreGraphics->mDevice.Get()));
+		FrameResources.push_back(std::make_unique<FrameResource>(mCoreGraphics->DeviceControl.Get()));
 	}
 }
 
@@ -133,7 +133,7 @@ void Crate::BuildLocalDescriptorHeap()
 	mSrvDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	mSrvDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	mSrvDesc.NumDescriptors = 1;
-	ExceptionFuse(mCoreGraphics->mDevice->CreateDescriptorHeap(&mSrvDesc, IID_PPV_ARGS(mSrvDescriptorHeap.GetAddressOf())));
+	ExceptionFuse(mCoreGraphics->DeviceControl->CreateDescriptorHeap(&mSrvDesc, IID_PPV_ARGS(ShadowResourceViewDescriptorHeap.GetAddressOf())));
 }
 
 void Crate::BuilduserInterface()
@@ -146,9 +146,9 @@ void Crate::BuilduserInterface()
 
 	ImGui::StyleColorsDark();
 
-	ImGui_ImplWin32_Init(gMainHwnd);
-	ImGui_ImplDX12_Init(mCoreGraphics->mDevice.Get(), 3,
-		DXGI_FORMAT_R8G8B8A8_UNORM, mSrvDescriptorHeap.Get(),
-		mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
-		mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+	ImGui_ImplWin32_Init(MainHwnd);
+	ImGui_ImplDX12_Init(mCoreGraphics->DeviceControl.Get(), 3,
+		DXGI_FORMAT_R8G8B8A8_UNORM, ShadowResourceViewDescriptorHeap.Get(),
+		ShadowResourceViewDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+		ShadowResourceViewDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 }

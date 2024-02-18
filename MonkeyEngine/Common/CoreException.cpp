@@ -1,16 +1,16 @@
 #include "CoreException.h"
 
 CoreException::CoreException(HRESULT hr, const std::wstring& functionName, const std::wstring& fileName, int lineNumber):
-    mErrorCode(hr),
-    mFunctionName(functionName),
-    mLineNumber(lineNumber),
-    mFileName(fileName)
+    ErrorCode(hr),
+    FunctionName(functionName),
+    LineNumber(lineNumber),
+    FileName(fileName)
 {
 }
 
 std::wstring CoreException::ProcessMessage() const
 {
-    _com_error error(mErrorCode);
+    _com_error error(ErrorCode);
 
     const char* custom_log_name = "MyLogName";
 
@@ -18,9 +18,9 @@ std::wstring CoreException::ProcessMessage() const
 
 
     const std::wstring customMessage =
-        L"FUNCTION NAME     : " + mFunctionName + L"\n" +
-        L"FILE NAME         : " + mFileName + L"\n" +
-        L"ERROR NUMBER LINE : " + std::to_wstring(mLineNumber) + L"\n" +
+        L"FUNCTION NAME     : " + FunctionName + L"\n" +
+        L"FILE NAME         : " + FileName + L"\n" +
+        L"ERROR NUMBER LINE : " + std::to_wstring(LineNumber) + L"\n" +
         L"MESSAGE           : " + error.ErrorMessage() + L"\n";
 
     HANDLE event_log = RegisterEventSource(NULL, L"MONKEY_SYSTEM_LOG");

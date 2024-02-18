@@ -4,16 +4,16 @@
 
 class CoreTimer {
 private:
-	double mSecondPerCount;
-	double mDeltaTime;
+	double SecondPerCount;
+	double DeltaTime;
 
-	__int64 mBaseTime;
-	__int64 mPausedTime;
-	__int64 mStopTime;
-	__int64 mPrevTime;
-	__int64 mCurrTime;
+	__int64 BaseTime;
+	__int64 PausedTime;
+	__int64 StopTime;
+	__int64 PrevTime;
+	__int64 CurrTime;
 
-	bool mStopped;
+	bool TimerStopped;
 
 public:
 	CoreTimer();

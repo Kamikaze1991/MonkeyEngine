@@ -1,6 +1,6 @@
 #include "FrameResource.h"
 
-FrameResource::FrameResource(ID3D12Device* mDevice)
+FrameResource::FrameResource(ID3D12Device* DeviceControl)
 {
-	mDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(mFrameCommandAllocator.GetAddressOf()));
+	DeviceControl->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(mFrameCommandAllocator.GetAddressOf()));
 }
