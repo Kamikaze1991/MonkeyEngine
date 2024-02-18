@@ -6,17 +6,17 @@ void Crate::OnUpdate()
 	CurrFrameResource = FrameResources[CurrentFrameResourceIndex].get();
 	
 
-	if (CurrFrameResource->mFrameFenceCount != 0 && mCoreGraphics->FenceControl->GetCompletedValue() < CurrFrameResource->mFrameFenceCount)
+	if (CurrFrameResource->FrameResourceFenceCount != 0 && mCoreGraphics->FenceControl->GetCompletedValue() < CurrFrameResource->FrameResourceFenceCount)
 	{
 		HANDLE eventHandle = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
-		ExceptionFuse(mCoreGraphics->FenceControl->SetEventOnCompletion(CurrFrameResource->mFrameFenceCount, eventHandle));
+		ExceptionFuse(mCoreGraphics->FenceControl->SetEventOnCompletion(CurrFrameResource->FrameResourceFenceCount, eventHandle));
 		if (eventHandle) {
 			WaitForSingleObject(eventHandle, INFINITE);
 			CloseHandle(eventHandle);
 		}
 	}
 
-	//mCoreGraphics->FlushCommandQueue(CurrFrameResource->mFrameFenceCount);
+	//mCoreGraphics->FlushCommandQueue(CurrFrameResource->FrameResourceFenceCount);
 }
 
 void Crate::OnRender()
@@ -26,7 +26,7 @@ void Crate::OnRender()
 
 void Crate::PopulateCommands()
 {
-	auto mCurrCmd = CurrFrameResource->mFrameCommandAllocator;
+	auto mCurrCmd = CurrFrameResource->FrameResourceCommandAllocator;
 	mCurrCmd->Reset();
 	GetEngineGraphicsCommandList()->Reset(mCurrCmd.Get(), nullptr);
 	D3D12_RESOURCE_BARRIER rbInitial = CD3DX12_RESOURCE_BARRIER::Transition(mCoreGraphics->RenderTargetBuffer[CurrFrame].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
@@ -51,11 +51,11 @@ void Crate::PopulateCommands()
 	ID3D12CommandList* mList[] = { GetEngineGraphicsCommandList().Get() };
 	GetEngineCommandQueue()->ExecuteCommandLists(_countof(mList), mList);
 	GetEngineSwapChain()->Present(1, 0);
-	CurrFrameResource->mFrameFenceCount = ++mCoreGraphics->FenceControlCount;
+	CurrFrameResource->FrameResourceFenceCount = ++mCoreGraphics->FenceControlCount;
 
 	GetEngineCommandQueue()->Signal(mCoreGraphics->FenceControl.Get(), mCoreGraphics->FenceControlCount);
 
-	//mCoreGraphics->FlushCommandQueue(CurrFrameResource->mFrameFenceCount);
+	//mCoreGraphics->FlushCommandQueue(CurrFrameResource->FrameResourceFenceCount);
 }
 
 Crate::~Crate()
