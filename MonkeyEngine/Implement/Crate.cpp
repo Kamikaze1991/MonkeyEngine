@@ -116,6 +116,7 @@ void Crate::OnInitialize()
 	LoadTextures();
 	BuildRootSignature();
 	BuildLocalDescriptorHeap();
+	BuildShadersAndInputLayout();
 	BuildFrameResurces();
 	BuilduserInterface();
 	mCoreGraphics->FlushCommandQueue();
@@ -182,6 +183,19 @@ void Crate::LoadTextures()
 		woodCrateTex->Resource, woodCrateTex->UploadHeap));
 
 	mTextures[woodCrateTex->Name] = std::move(woodCrateTex);
+}
+
+void Crate::BuildShadersAndInputLayout()
+{
+	mShaders["standardVS"] = CoreUtil::CompileShader(L"Resources\\Shaders\\Default.hlsl", nullptr, "VS", "vs_5_0");
+	mShaders["opaquePS"] = CoreUtil::CompileShader(L"Resources\\Shaders\\Default.hlsl", nullptr, "PS", "ps_5_0");
+
+	mInputLayout =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+	};
 }
 
 void Crate::BuildLocalDescriptorHeap()

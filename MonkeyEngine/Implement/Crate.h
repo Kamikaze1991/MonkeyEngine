@@ -123,6 +123,8 @@ private:
 	std::unordered_map<std::string, std::unique_ptr<Texture>> mTextures;
 	ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
 	ComPtr<ID3D12DescriptorHeap> mSrvDescriptorHeap = nullptr;
+	std::unordered_map<std::string, ComPtr<ID3DBlob>> mShaders;
+	std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
 
 
 	std::vector<std::unique_ptr<FrameResource>> FrameResources;
@@ -145,6 +147,7 @@ private:
 	void LoadTextures();
 	void BuildRootSignature();
 	void BuildLocalDescriptorHeap();
+	void BuildShadersAndInputLayout();
 	void BuildFrameResurces();
 	
 	void BuilduserInterface();
