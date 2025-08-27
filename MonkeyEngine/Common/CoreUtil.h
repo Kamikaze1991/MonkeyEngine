@@ -13,6 +13,7 @@
 #include <unordered_map>
 #include <DirectXMath.h>
 #include <DirectXColors.h>
+#include <DirectXCollision.h>
 #include "ThirdParty/LunaHelpers/GeometryGenerator.h"
 #include <xutility>
 #include <d3dcompiler.h>

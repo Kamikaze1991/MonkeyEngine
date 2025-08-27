@@ -70,6 +70,7 @@ Crate::Crate(int among):CoreEngine()
 
 void Crate::OnInitialize()
 {
+	LoadTextures();
 	BuildFrameResurces();
 	BuildLocalDescriptorHeap();
 	BuilduserInterface();
@@ -125,6 +126,18 @@ void Crate::BuildFrameResurces()
 	{
 		FrameResources.push_back(std::make_unique<FrameResource>(mCoreGraphics->DeviceControl.Get()));
 	}
+}
+
+void Crate::LoadTextures()
+{
+	auto woodCrateTex = std::make_unique<Texture>();
+	woodCrateTex->Name = "woodCrateTex";
+	woodCrateTex->Filename = L"Textures/robo.dds";
+	ExceptionFuse(DirectX::CreateDDSTextureFromFile12(mCoreGraphics->DeviceControl.Get(),
+		GetEngineGraphicsCommandList().Get(), woodCrateTex->Filename.c_str(),
+		woodCrateTex->Resource, woodCrateTex->UploadHeap));
+
+	mTextures[woodCrateTex->Name] = std::move(woodCrateTex);
 }
 
 void Crate::BuildLocalDescriptorHeap()
