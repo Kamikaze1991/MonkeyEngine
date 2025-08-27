@@ -124,7 +124,7 @@ void Crate::BuildFrameResurces()
 {
 	for (int i = 0; i < 3; ++i)
 	{
-		FrameResources.push_back(std::make_unique<FrameResource>(mCoreGraphics->DeviceControl.Get()));
+		FrameResources.push_back(std::make_unique<FrameResource>(mCoreGraphics->DeviceControl.Get(),1,1,1));
 	}
 }
 

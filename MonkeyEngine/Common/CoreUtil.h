@@ -30,6 +30,7 @@ public:
 
 };
 
+#define MaxLights 16
 
 #ifndef ExceptionFuse
 #define ExceptionFuse(x)                                              \
