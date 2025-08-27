@@ -42,6 +42,12 @@
     </ClCompile>
     <ClCompile Include="Common\ThirdParty\imguibackends\imgui_impl_dx12.cpp" />
     <ClCompile Include="Common\ThirdParty\imguibackends\imgui_impl_win32.cpp" />
+    <ClCompile Include="Common\ThirdParty\LunaHelpers\GeometryGenerator.cpp">
+      <Filter>Common\ThirdParty\LunaHelpers</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\ThirdParty\DDSTextureLoader.cpp">
+      <Filter>Common\ThirdParty</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Common">
@@ -52,6 +58,9 @@
     </Filter>
     <Filter Include="Common\ThirdParty\imgui">
       <UniqueIdentifier>{31000469-d148-46d1-9733-36cca86e3ca4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\ThirdParty\LunaHelpers">
+      <UniqueIdentifier>{06a9dc3d-5412-4ed2-8852-c2a1821f2f70}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -101,5 +110,11 @@
     </ClInclude>
     <ClInclude Include="Common\ThirdParty\imguibackends\imgui_impl_dx12.h" />
     <ClInclude Include="Common\ThirdParty\imguibackends\imgui_impl_win32.h" />
+    <ClInclude Include="Common\ThirdParty\LunaHelpers\GeometryGenerator.h">
+      <Filter>Common\ThirdParty\LunaHelpers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\ThirdParty\DDSTextureLoader.h">
+      <Filter>Common\ThirdParty</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

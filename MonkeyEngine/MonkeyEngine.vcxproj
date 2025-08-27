@@ -84,6 +84,7 @@
     <ClCompile Include="Common\CoreTimer.cpp" />
     <ClCompile Include="Common\CoreUploadBuffer.cpp" />
     <ClCompile Include="Common\CoreUtil.cpp" />
+    <ClCompile Include="Common\ThirdParty\DDSTextureLoader.cpp" />
     <ClCompile Include="Common\ThirdParty\imguibackends\imgui_impl_dx12.cpp" />
     <ClCompile Include="Common\ThirdParty\imguibackends\imgui_impl_win32.cpp" />
     <ClCompile Include="Common\ThirdParty\imgui\imgui.cpp" />
@@ -91,6 +92,7 @@
     <ClCompile Include="Common\ThirdParty\imgui\imgui_draw.cpp" />
     <ClCompile Include="Common\ThirdParty\imgui\imgui_tables.cpp" />
     <ClCompile Include="Common\ThirdParty\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="Common\ThirdParty\LunaHelpers\GeometryGenerator.cpp" />
     <ClCompile Include="Implement\Crate.cpp" />
     <ClCompile Include="Implement\FrameResource.cpp" />
     <ClCompile Include="main.cpp" />
@@ -104,6 +106,7 @@
     <ClInclude Include="Common\CoreException.h" />
     <ClInclude Include="Common\ThirdParty\d3dx12.h" />
     <ClInclude Include="Common\CoreUploadBuffer.h" />
+    <ClInclude Include="Common\ThirdParty\DDSTextureLoader.h" />
     <ClInclude Include="Common\ThirdParty\imguibackends\imgui_impl_dx12.h" />
     <ClInclude Include="Common\ThirdParty\imguibackends\imgui_impl_win32.h" />
     <ClInclude Include="Common\ThirdParty\imgui\imconfig.h" />
@@ -112,6 +115,7 @@
     <ClInclude Include="Common\ThirdParty\imgui\imstb_rectpack.h" />
     <ClInclude Include="Common\ThirdParty\imgui\imstb_textedit.h" />
     <ClInclude Include="Common\ThirdParty\imgui\imstb_truetype.h" />
+    <ClInclude Include="Common\ThirdParty\LunaHelpers\GeometryGenerator.h" />
     <ClInclude Include="Implement\Crate.h" />
     <ClInclude Include="Implement\FrameResource.h" />
   </ItemGroup>
