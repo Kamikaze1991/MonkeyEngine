@@ -121,6 +121,9 @@ struct RenderItem
 class Crate :public CoreEngine {
 private:
 	std::unordered_map<std::string, std::unique_ptr<Texture>> mTextures;
+	ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
+	ComPtr<ID3D12DescriptorHeap> mSrvDescriptorHeap = nullptr;
+
 
 	std::vector<std::unique_ptr<FrameResource>> FrameResources;
 	FrameResource* CurrFrameResource = nullptr;
@@ -140,9 +143,12 @@ public:
 private:
 	//specific funcions
 	void LoadTextures();
-	void BuildFrameResurces();
+	void BuildRootSignature();
 	void BuildLocalDescriptorHeap();
+	void BuildFrameResurces();
+	
 	void BuilduserInterface();
+	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
 };
 
 #endif

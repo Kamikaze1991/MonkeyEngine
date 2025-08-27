@@ -15,9 +15,6 @@
     <ClCompile Include="Common\CoreUtil.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="Common\CoreUploadBuffer.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="Common\CoreTimer.cpp">
       <Filter>Common</Filter>
     </ClCompile>
