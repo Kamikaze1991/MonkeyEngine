@@ -11,7 +11,6 @@
     <ClCompile Include="Common\CoreEngine.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="Implement\Crate.cpp" />
     <ClCompile Include="Common\CoreUtil.cpp">
       <Filter>Common</Filter>
     </ClCompile>
@@ -45,6 +44,7 @@
     <ClCompile Include="Common\ThirdParty\DDSTextureLoader.cpp">
       <Filter>Common\ThirdParty</Filter>
     </ClCompile>
+    <ClCompile Include="Implement\Crate.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Common">

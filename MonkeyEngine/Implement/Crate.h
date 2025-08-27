@@ -121,6 +121,10 @@ struct RenderItem
 class Crate :public CoreEngine {
 private:
 	std::unordered_map<std::string, std::unique_ptr<Texture>> mTextures;
+	std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
+	std::unordered_map<std::string, std::unique_ptr<Material>> mMaterials;
+	std::vector<RenderItem*> mOpaqueRitems;
+	std::vector<std::unique_ptr<RenderItem>> mAllRitems;
 	ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
 	ComPtr<ID3D12DescriptorHeap> mSrvDescriptorHeap = nullptr;
 	std::unordered_map<std::string, ComPtr<ID3DBlob>> mShaders;
@@ -148,6 +152,9 @@ private:
 	void BuildRootSignature();
 	void BuildLocalDescriptorHeap();
 	void BuildShadersAndInputLayout();
+	void BuildShapeGeometry();
+	void BuildMaterials();
+	void BuildRenderItems();
 	void BuildFrameResurces();
 	
 	void BuilduserInterface();

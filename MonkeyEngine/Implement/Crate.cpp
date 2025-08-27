@@ -117,9 +117,29 @@ void Crate::OnInitialize()
 	BuildRootSignature();
 	BuildLocalDescriptorHeap();
 	BuildShadersAndInputLayout();
+	BuildShapeGeometry();
+	BuildMaterials();
+	BuildRenderItems();
 	BuildFrameResurces();
 	BuilduserInterface();
 	mCoreGraphics->FlushCommandQueue();
+}
+
+void Crate::BuildRenderItems()
+{
+	auto boxRitem = std::make_unique<RenderItem>();
+	boxRitem->ObjCBIndex = 0;
+	boxRitem->Mat = mMaterials["woodCrate"].get();
+	boxRitem->Geo = mGeometries["boxGeo"].get();
+	boxRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	boxRitem->IndexCount = boxRitem->Geo->DrawArgs["box"].IndexCount;
+	boxRitem->StartIndexLocation = boxRitem->Geo->DrawArgs["box"].StartIndexLocation;
+	boxRitem->BaseVertexLocation = boxRitem->Geo->DrawArgs["box"].BaseVertexLocation;
+	mAllRitems.push_back(std::move(boxRitem));
+
+	// All the render items are opaque.
+	for (auto& e : mAllRitems)
+		mOpaqueRitems.push_back(e.get());
 }
 
 void Crate::OnInitializeUi()
@@ -167,9 +187,10 @@ void Crate::OnInitializeUi()
 
 void Crate::BuildFrameResurces()
 {
-	for (int i = 0; i < 3; ++i)
+	for (int i = 0; i < gNumFrameResources; ++i)
 	{
-		FrameResources.push_back(std::make_unique<FrameResource>(mCoreGraphics->DeviceControl.Get(),1,1,1));
+		FrameResources.push_back(std::make_unique<FrameResource>(mCoreGraphics->DeviceControl.Get(),
+			1, (UINT)mAllRitems.size(), (UINT)mMaterials.size()));
 	}
 }
 
@@ -183,6 +204,70 @@ void Crate::LoadTextures()
 		woodCrateTex->Resource, woodCrateTex->UploadHeap));
 
 	mTextures[woodCrateTex->Name] = std::move(woodCrateTex);
+}
+
+void Crate::BuildMaterials()
+{
+	auto woodCrate = std::make_unique<Material>();
+	woodCrate->Name = "woodCrate";
+	woodCrate->MatCBIndex = 0;
+	woodCrate->DiffuseSrvHeapIndex = 0;
+	woodCrate->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	woodCrate->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
+	woodCrate->Roughness = 0.2f;
+
+	mMaterials["woodCrate"] = std::move(woodCrate);
+}
+
+void Crate::BuildShapeGeometry()
+{
+
+	GeometryGenerator geoGen;
+	MeshData box = geoGen.CreateBox(2.0f, 2.0f, 2.0f, 0);
+	SubmeshGeometry boxSubmesh;
+	boxSubmesh.IndexCount = (UINT)box.Indices32.size();
+	boxSubmesh.StartIndexLocation = 0;
+	boxSubmesh.BaseVertexLocation = 0;
+
+
+
+	std::vector<Vertex> vertices(box.Vertices.size());
+
+	for (size_t i = 0; i < box.Vertices.size(); ++i)
+	{
+		vertices[i].Pos = box.Vertices[i].Position;
+		vertices[i].Normal = box.Vertices[i].Normal;
+		vertices[i].TexC = box.Vertices[i].TexC;
+	}
+
+	std::vector<std::uint16_t> indices = box.GetIndices16();
+
+	const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
+	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
+
+	auto geo = std::make_unique<MeshGeometry>();
+	geo->Name = "boxGeo";
+
+	ExceptionFuse(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
+	CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
+
+	ExceptionFuse(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
+	CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
+
+	geo->VertexBufferGPU = CoreUtil::CreateDefaultBuffer(GetEngineGraphicsCommandList().Get(), 
+		mCoreGraphics->DeviceControl.Get(), vbByteSize, vertices.data(), geo->VertexBufferUploader);
+
+	geo->IndexBufferGPU = CoreUtil::CreateDefaultBuffer(GetEngineGraphicsCommandList().Get(),
+		mCoreGraphics->DeviceControl.Get(), ibByteSize, indices.data(), geo->IndexBufferUploader);
+
+	geo->VertexByteStride = sizeof(Vertex);
+	geo->VertexBufferByteSize = vbByteSize;
+	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
+	geo->IndexBufferByteSize = ibByteSize;
+
+	geo->DrawArgs["box"] = boxSubmesh;
+
+	mGeometries[geo->Name] = std::move(geo);
 }
 
 void Crate::BuildShadersAndInputLayout()
