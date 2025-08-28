@@ -33,10 +33,10 @@ public:
 	CoreEngine(int width, int height, bool fullscreen);
 	virtual void InitDirect3D(HWND mHwnd);
 	void ResetEngine();
-	virtual void Loop();
+	virtual void Loop(const CoreTimer& gt);
 	virtual void OnInitialize()=0;
 	virtual void OnInitializeUi() = 0;
-	virtual void OnUpdate()=0;
+	virtual void OnUpdate(const CoreTimer& gt) =0;
 	virtual void OnRender()=0;
 
 	//engine helpers
@@ -45,7 +45,7 @@ public:
 	Microsoft::WRL::ComPtr<IDXGISwapChain3> GetEngineSwapChain();
 
 	CoreGraphics* GetCoreGraphics();
-	CoreTimer* GetCoreTimer();
+	CoreTimer& GetCoreTimer();
 
 	void WindowRedimention(int width, int height);
 };

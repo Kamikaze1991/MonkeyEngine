@@ -124,19 +124,34 @@ private:
 	std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
 	std::unordered_map<std::string, std::unique_ptr<Material>> mMaterials;
 	std::vector<RenderItem*> mOpaqueRitems;
+	ComPtr<ID3D12PipelineState> mOpaquePSO = nullptr;
 	std::vector<std::unique_ptr<RenderItem>> mAllRitems;
 	ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
 	ComPtr<ID3D12DescriptorHeap> mSrvDescriptorHeap = nullptr;
 	std::unordered_map<std::string, ComPtr<ID3DBlob>> mShaders;
 	std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
+	UINT mCbvSrvDescriptorSize = 0;
 
 
 	std::vector<std::unique_ptr<FrameResource>> FrameResources;
 	FrameResource* CurrFrameResource = nullptr;
 	ComPtr<ID3D12DescriptorHeap> ShadowResourceViewDescriptorHeap = nullptr;
 	int CurrentFrameResourceIndex = 0;
+
+	PassConstants mMainPassCB;
+
+	XMFLOAT3 mEyePos = { 0.0f, 0.0f, 0.0f };
+	XMFLOAT4X4 mView = CoreUtil::Identity4x4();
+	XMFLOAT4X4 mProj = CoreUtil::Identity4x4();
+
+	float mTheta = XM_PIDIV2;
+	float mPhi = XM_PIDIV2;
+	float mRadius = 2.0f;
+
+	POINT mLastMousePos;
+
 public:
-	virtual void OnUpdate();
+	virtual void OnUpdate(const CoreTimer& gt);
 	virtual void OnRender();
 	virtual void OnInitialize();
 	virtual void OnInitializeUi();
@@ -147,6 +162,13 @@ public:
 	Crate(int among);
 	
 private:
+
+	void UpdateCamera(const CoreTimer& gt);
+	void UpdateObjectCBs(const CoreTimer& gt);
+	void UpdateMaterialCBs(const CoreTimer& gt);
+	void UpdateMainPassCB(const CoreTimer& gt);
+
+
 	//specific funcions
 	void LoadTextures();
 	void BuildRootSignature();
@@ -156,6 +178,8 @@ private:
 	void BuildMaterials();
 	void BuildRenderItems();
 	void BuildFrameResurces();
+	void BuildPSOs();
+	void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
 	
 	void BuilduserInterface();
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();

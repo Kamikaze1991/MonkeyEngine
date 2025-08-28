@@ -1,6 +1,6 @@
 #include "Crate.h"
 
-void Crate::OnUpdate()
+void Crate::OnUpdate(const CoreTimer& gt)
 {
 	CurrentFrameResourceIndex = (CurrentFrameResourceIndex + 1) % 3;
 	CurrFrameResource = FrameResources[CurrentFrameResourceIndex].get();
@@ -15,6 +15,11 @@ void Crate::OnUpdate()
 			CloseHandle(eventHandle);
 		}
 	}
+
+	UpdateCamera(gt);
+	UpdateObjectCBs(gt);
+	UpdateMaterialCBs(gt);
+	UpdateMainPassCB(gt);
 
 	//mCoreGraphics->FlushCommandQueue(CurrFrameResource->FrameResourceFenceCount);
 }
@@ -38,11 +43,24 @@ void Crate::PopulateCommands()
 	D3D12_CPU_DESCRIPTOR_HANDLE currBackBuffer = mCoreGraphics->CurrentBackBufferView(CurrFrame);
 	D3D12_CPU_DESCRIPTOR_HANDLE currDepthStencil = mCoreGraphics->DepthStencilView();
 	GetEngineGraphicsCommandList()->OMSetRenderTargets(1, &currBackBuffer, true, &currDepthStencil);
+	
+	ID3D12DescriptorHeap* descriptorHeapsMain[] = { mSrvDescriptorHeap.Get() };
+	GetEngineGraphicsCommandList()->SetDescriptorHeaps(_countof(descriptorHeapsMain), descriptorHeapsMain);
+	GetEngineGraphicsCommandList()->SetGraphicsRootSignature(mRootSignature.Get());
+
+	auto passCB = CurrFrameResource->PassCB->Resource();
+	GetEngineGraphicsCommandList()->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
+
+
+	//auto passCB = CurrFrameResource->PassCB->Resource();
+
+	
 
 	ID3D12DescriptorHeap* descriptorHeaps[] = { ShadowResourceViewDescriptorHeap.Get() };
 	GetEngineGraphicsCommandList()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
 	//GetEngineGraphicsCommandList()->SetDescriptorHeaps(1, &mCoreGraphics->mCbvSrvUavHeap);
+	DrawRenderItems(GetEngineGraphicsCommandList().Get(), mOpaqueRitems);
 	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), GetEngineGraphicsCommandList().Get());
 	rbInitial = CD3DX12_RESOURCE_BARRIER::Transition(mCoreGraphics->RenderTargetBuffer[CurrFrame].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 	GetEngineGraphicsCommandList()->ResourceBarrier(1, &rbInitial);
@@ -56,6 +74,113 @@ void Crate::PopulateCommands()
 	GetEngineCommandQueue()->Signal(mCoreGraphics->FenceControl.Get(), mCoreGraphics->FenceControlCount);
 
 	//mCoreGraphics->FlushCommandQueue(CurrFrameResource->FrameResourceFenceCount);
+}
+
+void Crate::UpdateMaterialCBs(const CoreTimer& gt)
+{
+	auto currMaterialCB = CurrFrameResource->MaterialCB.get();
+	for (auto& e : mMaterials)
+	{
+		// Only update the cbuffer data if the constants have changed.  If the cbuffer
+		// data changes, it needs to be updated for each FrameResource.
+		Material* mat = e.second.get();
+		if (mat->NumFramesDirty > 0)
+		{
+			XMMATRIX matTransform = XMLoadFloat4x4(&mat->MatTransform);
+
+			MaterialConstants matConstants;
+			matConstants.DiffuseAlbedo = mat->DiffuseAlbedo;
+			matConstants.FresnelR0 = mat->FresnelR0;
+			matConstants.Roughness = mat->Roughness;
+			XMStoreFloat4x4(&matConstants.MatTransform, XMMatrixTranspose(matTransform));
+
+			currMaterialCB->CopyData(mat->MatCBIndex, matConstants);
+
+			// Next FrameResource need to be updated too.
+			mat->NumFramesDirty--;
+		}
+	}
+}
+
+void Crate::UpdateMainPassCB(const CoreTimer& gt)
+{
+	XMMATRIX view = XMLoadFloat4x4(&mView);
+	XMMATRIX proj = XMLoadFloat4x4(&mProj);
+	XMMATRIX viewProj = XMMatrixMultiply(view, proj);
+
+	// Corrección: almacenar el determinante en variables antes de pasarlos por referencia
+	XMVECTOR detView = XMMatrixDeterminant(view);
+	XMVECTOR detProj = XMMatrixDeterminant(proj);
+	XMVECTOR detViewProj = XMMatrixDeterminant(viewProj);
+
+	XMMATRIX invView = XMMatrixInverse(&detView, view);
+	XMMATRIX invProj = XMMatrixInverse(&detProj, proj);
+	XMMATRIX invViewProj = XMMatrixInverse(&detViewProj, viewProj);
+
+
+	XMStoreFloat4x4(&mMainPassCB.View, XMMatrixTranspose(view));
+	XMStoreFloat4x4(&mMainPassCB.InvView, XMMatrixTranspose(invView));
+	XMStoreFloat4x4(&mMainPassCB.Proj, XMMatrixTranspose(proj));
+	XMStoreFloat4x4(&mMainPassCB.InvProj, XMMatrixTranspose(invProj));
+	XMStoreFloat4x4(&mMainPassCB.ViewProj, XMMatrixTranspose(viewProj));
+	XMStoreFloat4x4(&mMainPassCB.InvViewProj, XMMatrixTranspose(invViewProj));
+	mMainPassCB.EyePosW = mEyePos;
+	mMainPassCB.RenderTargetSize = XMFLOAT2((float)ClientWidth, (float)ClientHeight);
+	mMainPassCB.InvRenderTargetSize = XMFLOAT2(1.0f / ClientWidth, 1.0f / ClientHeight);
+	mMainPassCB.NearZ = 1.0f;
+	mMainPassCB.FarZ = 1000.0f;
+	mMainPassCB.TotalTime = gt.TotalTime();
+	mMainPassCB.DeltaTime = gt.DeltatIme();
+	mMainPassCB.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
+	mMainPassCB.Lights[0].Direction = { 0.57735f, -0.57735f, 0.57735f };
+	mMainPassCB.Lights[0].Strength = { 0.6f, 0.6f, 0.6f };
+	mMainPassCB.Lights[1].Direction = { -0.57735f, -0.57735f, 0.57735f };
+	mMainPassCB.Lights[1].Strength = { 0.3f, 0.3f, 0.3f };
+	mMainPassCB.Lights[2].Direction = { 0.0f, -0.707f, -0.707f };
+	mMainPassCB.Lights[2].Strength = { 0.15f, 0.15f, 0.15f };
+
+	auto currPassCB = CurrFrameResource->PassCB.get();
+	currPassCB->CopyData(0, mMainPassCB);
+}
+
+void Crate::UpdateObjectCBs(const CoreTimer& gt)
+{
+	auto currObjectCB = CurrFrameResource->ObjectCB.get();
+	for (std::unique_ptr<RenderItem>& e : mAllRitems)
+	{
+		// Only update the cbuffer data if the constants have changed.  
+		// This needs to be tracked per frame resource.
+		if (e->NumFramesDirty > 0)
+		{
+			XMMATRIX world = XMLoadFloat4x4(&e->World);
+			XMMATRIX texTransform = XMLoadFloat4x4(&e->TexTransform);
+
+			ObjectConstants objConstants;
+			XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
+			XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
+
+			currObjectCB->CopyData(e->ObjCBIndex, objConstants);
+
+			// Next FrameResource need to be updated too.
+			e->NumFramesDirty--;
+		}
+	}
+}
+
+void Crate::UpdateCamera(const CoreTimer& gt)
+{
+	// Convert Spherical to Cartesian coordinates.
+	mEyePos.x = mRadius * sinf(mPhi) * cosf(mTheta);
+	mEyePos.z = mRadius * sinf(mPhi) * sinf(mTheta);
+	mEyePos.y = mRadius * cosf(mPhi);
+
+	// Build the view matrix.
+	XMVECTOR pos = XMVectorSet(mEyePos.x, mEyePos.y, mEyePos.z, 1.0f);
+	XMVECTOR target = XMVectorZero();
+	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+	XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
+	XMStoreFloat4x4(&mView, view);
 }
 
 Crate::~Crate()
@@ -113,6 +238,7 @@ void Crate::BuildRootSignature()
 
 void Crate::OnInitialize()
 {
+	mCbvSrvDescriptorSize = mCoreGraphics->DeviceControl->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	LoadTextures();
 	BuildRootSignature();
 	BuildLocalDescriptorHeap();
@@ -121,8 +247,42 @@ void Crate::OnInitialize()
 	BuildMaterials();
 	BuildRenderItems();
 	BuildFrameResurces();
+	BuildPSOs();
 	BuilduserInterface();
 	mCoreGraphics->FlushCommandQueue();
+}
+
+void Crate::BuildPSOs()
+{
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc;
+
+	//
+	// PSO for opaque objects.
+	//
+	ZeroMemory(&opaquePsoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+	opaquePsoDesc.InputLayout = { mInputLayout.data(), (UINT)mInputLayout.size() };
+	opaquePsoDesc.pRootSignature = mRootSignature.Get();
+	opaquePsoDesc.VS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["standardVS"]->GetBufferPointer()),
+		mShaders["standardVS"]->GetBufferSize()
+	};
+	opaquePsoDesc.PS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["opaquePS"]->GetBufferPointer()),
+		mShaders["opaquePS"]->GetBufferSize()
+	};
+	opaquePsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	opaquePsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	opaquePsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	opaquePsoDesc.SampleMask = UINT_MAX;
+	opaquePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	opaquePsoDesc.NumRenderTargets = 1;
+	opaquePsoDesc.RTVFormats[0] = mCoreGraphics->mBackBufferFormat;
+	opaquePsoDesc.SampleDesc.Count = mCoreGraphics->m4xMsaaState ? 4 : 1;
+	opaquePsoDesc.SampleDesc.Quality = mCoreGraphics->m4xMsaaState ? (mCoreGraphics->m4xMsaaQuality - 1) : 0;
+	opaquePsoDesc.DSVFormat = mCoreGraphics->mDepthStencilFormat;
+	ExceptionFuse(mCoreGraphics->DeviceControl->CreateGraphicsPipelineState(&opaquePsoDesc, IID_PPV_ARGS(&mOpaquePSO)));
 }
 
 void Crate::BuildRenderItems()
@@ -307,6 +467,38 @@ void Crate::BuildLocalDescriptorHeap()
 	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 	mCoreGraphics->DeviceControl->CreateShaderResourceView(mTextures["woodCrateTex"]->Resource.Get(), &srvDesc, hDescriptor);
 
+}
+
+void Crate::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
+{
+	UINT64 objCBByteSize = CoreUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+	UINT64 matCBByteSize = CoreUtil::CalcConstantBufferByteSize(sizeof(MaterialConstants));
+
+	auto objectCB = CurrFrameResource->ObjectCB->Resource();
+	auto matCB = CurrFrameResource->MaterialCB->Resource();
+
+	// For each render item...
+	for (size_t i = 0; i < ritems.size(); ++i)
+	{
+		auto ri = ritems[i];
+		D3D12_VERTEX_BUFFER_VIEW vbView = ri->Geo->VertexBufferView();
+		cmdList->IASetVertexBuffers(0, 1, &vbView);
+		D3D12_INDEX_BUFFER_VIEW ibView = ri->Geo->IndexBufferView();
+		cmdList->IASetIndexBuffer(&ibView);
+		cmdList->IASetPrimitiveTopology(ri->PrimitiveType);
+
+		CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+		tex.Offset(ri->Mat->DiffuseSrvHeapIndex, mCbvSrvDescriptorSize);
+
+		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
+		D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + ri->Mat->MatCBIndex * matCBByteSize;
+
+		cmdList->SetGraphicsRootDescriptorTable(0, tex);
+		cmdList->SetGraphicsRootConstantBufferView(1, objCBAddress);
+		cmdList->SetGraphicsRootConstantBufferView(3, matCBAddress);
+
+		cmdList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
+	}
 }
 
 void Crate::BuilduserInterface()

@@ -55,8 +55,8 @@ int CoreSystem::Run(CoreEngine* CoreEngine, HINSTANCE mHinstance, int cmdShow)
             DispatchMessage(&msg);
         }
         else {
-            MainCoreEngine->GetCoreTimer()->Tick();
-            MainCoreEngine->Loop();
+            MainCoreEngine->GetCoreTimer().Tick();
+            MainCoreEngine->Loop(MainCoreEngine->GetCoreTimer());
         }
     }
 

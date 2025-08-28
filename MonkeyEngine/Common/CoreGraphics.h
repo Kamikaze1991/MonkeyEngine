@@ -33,8 +33,12 @@ public:
 
 	DXGI_FORMAT SwapChainControlFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 	DXGI_FORMAT mDepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	DXGI_FORMAT mBackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 #pragma endregion
 	bool FullScreen = true;
+	// Set true to use 4X MSAA (§4.1.8).  The default is false.
+	bool      m4xMsaaState = false;    // 4X MSAA enabled
+	UINT      m4xMsaaQuality = 0;      // quality level of 4X MSAA
 
 public:
 	~CoreGraphics();

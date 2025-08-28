@@ -39,10 +39,10 @@ Microsoft::WRL::ComPtr<IDXGISwapChain3> CoreEngine::GetEngineSwapChain()
 	return mCoreGraphics->SwapChainControl;
 }
 
-void CoreEngine::Loop()
+void CoreEngine::Loop(const CoreTimer& gt)
 {
 	OnInitializeUi();
-	OnUpdate();
+	OnUpdate(gt);
 	OnRender();
 	CurrFrame = (CurrFrame + 1) % FrameCount;
 }
@@ -52,9 +52,9 @@ CoreGraphics* CoreEngine::GetCoreGraphics()
 	return mCoreGraphics;
 }
 
-CoreTimer* CoreEngine::GetCoreTimer()
+CoreTimer& CoreEngine::GetCoreTimer()
 {
-	return mTimer;
+	return *mTimer;
 }
 
 void CoreEngine::WindowRedimention(int width, int height)
