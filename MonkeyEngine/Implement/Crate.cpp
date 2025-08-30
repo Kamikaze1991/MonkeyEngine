@@ -2,6 +2,9 @@
 
 void Crate::OnUpdate(const CoreTimer& gt)
 {
+	mPhi = 2.07693887f;
+	mTheta = 2.45654964f;
+	mRadius = 5.0f;
 	CurrentFrameResourceIndex = (CurrentFrameResourceIndex + 1) % 3;
 	CurrFrameResource = FrameResources[CurrentFrameResourceIndex].get();
 	
@@ -33,7 +36,10 @@ void Crate::PopulateCommands()
 {
 	auto mCurrCmd = CurrFrameResource->FrameResourceCommandAllocator;
 	mCurrCmd->Reset();
-	GetEngineGraphicsCommandList()->Reset(mCurrCmd.Get(), nullptr);
+	mCoreGraphics->GraphicsCommandListControl->Reset(mCurrCmd.Get(), mOpaquePSO.Get());
+	mCoreGraphics->GraphicsCommandListControl->RSSetViewports(1, &mCoreGraphics->ViewPort);
+	mCoreGraphics->GraphicsCommandListControl->RSSetScissorRects(1, &mCoreGraphics->ScissorRect);
+
 	D3D12_RESOURCE_BARRIER rbInitial = CD3DX12_RESOURCE_BARRIER::Transition(mCoreGraphics->RenderTargetBuffer[CurrFrame].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	GetEngineGraphicsCommandList()->ResourceBarrier(1, &rbInitial);
 	CD3DX12_CPU_DESCRIPTOR_HANDLE descriptor(mCoreGraphics->RenderTargetViewHeap->GetCPUDescriptorHandleForHeapStart(), CurrFrame, mCoreGraphics->RenderTargetViewHeapSize);
@@ -104,6 +110,9 @@ void Crate::UpdateMaterialCBs(const CoreTimer& gt)
 
 void Crate::UpdateMainPassCB(const CoreTimer& gt)
 {
+	XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * 3.1415926535f, static_cast<float>(ClientWidth) / ClientHeight, 1.0f, 1000.0f);
+	XMStoreFloat4x4(&mProj, P);
+
 	XMMATRIX view = XMLoadFloat4x4(&mView);
 	XMMATRIX proj = XMLoadFloat4x4(&mProj);
 	XMMATRIX viewProj = XMMatrixMultiply(view, proj);
@@ -238,6 +247,7 @@ void Crate::BuildRootSignature()
 
 void Crate::OnInitialize()
 {
+	mCoreGraphics->GraphicsCommandListControl->Reset(mCoreGraphics->CommandAllocatorControl.Get(), nullptr);
 	mCbvSrvDescriptorSize = mCoreGraphics->DeviceControl->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	LoadTextures();
 	BuildRootSignature();
@@ -249,6 +259,11 @@ void Crate::OnInitialize()
 	BuildFrameResurces();
 	BuildPSOs();
 	BuilduserInterface();
+
+	ExceptionFuse(mCoreGraphics->GraphicsCommandListControl->Close());
+	ID3D12CommandList* cmdsLists[] = { mCoreGraphics->GraphicsCommandListControl.Get() };
+	mCoreGraphics->CommandQueueControl->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
 	mCoreGraphics->FlushCommandQueue();
 }
 
@@ -383,7 +398,7 @@ void Crate::BuildShapeGeometry()
 {
 
 	GeometryGenerator geoGen;
-	MeshData box = geoGen.CreateBox(2.0f, 2.0f, 2.0f, 0);
+	MeshData box = geoGen.CreateBox(1.0f, 1.0f, 1.0f, 3);
 	SubmeshGeometry boxSubmesh;
 	boxSubmesh.IndexCount = (UINT)box.Indices32.size();
 	boxSubmesh.StartIndexLocation = 0;

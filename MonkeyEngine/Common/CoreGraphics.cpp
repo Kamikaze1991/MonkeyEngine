@@ -123,8 +123,8 @@ void CoreGraphics::OnReset(int clientWidth, int clientHeight)
 	FlushCommandQueue();
 	ViewPort.Height = static_cast<float>(clientHeight);
 	ViewPort.Width = static_cast<float>(clientWidth);
-	ViewPort.MaxDepth = 1000.0f;
-	ViewPort.MinDepth = 1.0f;
+	ViewPort.MaxDepth = 1.0f;
+	ViewPort.MinDepth = 0.0f;
 	ViewPort.TopLeftX = 0;
 	ViewPort.TopLeftY = 0;
 
