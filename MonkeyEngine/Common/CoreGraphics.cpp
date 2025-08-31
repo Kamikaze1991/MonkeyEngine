@@ -73,6 +73,11 @@ void CoreGraphics::FlushCommandQueue(UINT64 fenceValue)
 	}
 }
 
+int CoreGraphics::GetCurrentBufferIndex()const
+{
+	return SwapChainControl->GetCurrentBackBufferIndex();
+}
+
 void CoreGraphics::OnReset(int clientWidth, int clientHeight)
 {
 	if (!DeviceControl)
@@ -132,9 +137,9 @@ void CoreGraphics::OnReset(int clientWidth, int clientHeight)
 
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE CoreGraphics::CurrentBackBufferView(int currFrame) const
+D3D12_CPU_DESCRIPTOR_HANDLE CoreGraphics::CurrentBackBufferView() const
 {
-	return CD3DX12_CPU_DESCRIPTOR_HANDLE(RenderTargetViewHeap->GetCPUDescriptorHandleForHeapStart(), currFrame, RenderTargetViewHeapSize);
+	return CD3DX12_CPU_DESCRIPTOR_HANDLE(RenderTargetViewHeap->GetCPUDescriptorHandleForHeapStart(), SwapChainControl->GetCurrentBackBufferIndex(), RenderTargetViewHeapSize);
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE CoreGraphics::DepthStencilView() const

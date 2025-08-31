@@ -9,12 +9,10 @@
 
 class CoreEngine {
 protected:
-
-	CoreGraphics* mCoreGraphics = nullptr;
-	CoreTimer* mTimer = nullptr;
+	std::unique_ptr<CoreGraphics> mCoreGraphics = std::make_unique<CoreGraphics>();
+	std::unique_ptr<CoreTimer> mTimer = nullptr;
 	ImGuiIO *io=nullptr;
 	HWND MainHwnd;
-	int CurrFrame = 0;
 	int FrameCount = 2;
 	bool FullScreen = true;
 #pragma region variables imgui

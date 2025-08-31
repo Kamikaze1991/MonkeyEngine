@@ -48,8 +48,10 @@ public:
 
 	void FlushCommandQueue();
 	void FlushCommandQueue(UINT64 fenceValue);
-	D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView(int currFrame)const;
+	D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView()const;
 	D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView()const;
+
+	int GetCurrentBufferIndex()const;
 private:
 
 	void BuildSwapChain(HWND mHwnd, int clientWidth, int clientHeight);
