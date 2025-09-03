@@ -9,7 +9,7 @@
 
 class CoreEngine {
 protected:
-	std::unique_ptr<ICoreGraphics> mCoreGraphics = std::make_unique<CoreGraphics>();
+	std::unique_ptr<ICoreGraphics> ICoreGraphicsService = std::make_unique<CoreGraphics>();
 	std::unique_ptr<CoreTimer> mTimer = nullptr;
 	ImGuiIO *io=nullptr;
 	HWND MainHwnd;
@@ -26,7 +26,7 @@ public:
 	int ClientWidth = 800;
 	int ClientHeight = 600;
 
-	CoreEngine() = default;
+	CoreEngine();
 	~CoreEngine();
 	CoreEngine(int width, int height, bool fullscreen);
 	virtual void InitDirect3D(HWND mHwnd);

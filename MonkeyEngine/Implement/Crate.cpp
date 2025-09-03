@@ -8,7 +8,7 @@ void Crate::OnUpdate(const CoreTimer& gt)
 	CurrentFrameResourceIndex = (CurrentFrameResourceIndex + 1) % 3;
 	CurrFrameResource = FrameResources[CurrentFrameResourceIndex].get();
 	
-	mCoreGraphics->FlushCommandQueue(CurrFrameResource->FrameResourceFenceCount);
+	ICoreGraphicsService->FlushCommandQueue(CurrFrameResource->FrameResourceFenceCount);
 	
 	UpdateCamera(gt);
 	UpdateObjectCBs(gt);
@@ -27,19 +27,19 @@ void Crate::PopulateCommands()
 	auto mCurrCmd = CurrFrameResource->FrameResourceCommandAllocator;
 	float clearColor[] = { ClearColor.x / ClearColor.w,ClearColor.y / ClearColor.w, ClearColor.z / ClearColor.w, ClearColor.w };
 
-	mCoreGraphics->BeginScene(mCurrCmd.Get(), mOpaquePSO.Get(), clearColor);
+	ICoreGraphicsService->BeginScene(mCurrCmd.Get(), mOpaquePSO.Get(), clearColor);
 	
 	ID3D12DescriptorHeap* descriptorHeapsMain[] = { mSrvDescriptorHeap.Get() };
-	mCoreGraphics->GetGraphicsCommandList()->SetDescriptorHeaps(_countof(descriptorHeapsMain), descriptorHeapsMain);
-	mCoreGraphics->GetGraphicsCommandList()->SetGraphicsRootSignature(mRootSignature.Get());
+	ICoreGraphicsService->GetGraphicsCommandList()->SetDescriptorHeaps(_countof(descriptorHeapsMain), descriptorHeapsMain);
+	ICoreGraphicsService->GetGraphicsCommandList()->SetGraphicsRootSignature(mRootSignature.Get());
 	auto passCB = CurrFrameResource->PassCB->Resource();
-	mCoreGraphics->GetGraphicsCommandList()->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
-	DrawRenderItems(mCoreGraphics->GetGraphicsCommandList(), mOpaqueRitems);
+	ICoreGraphicsService->GetGraphicsCommandList()->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
+	DrawRenderItems(ICoreGraphicsService->GetGraphicsCommandList(), mOpaqueRitems);
 	ID3D12DescriptorHeap* descriptorHeaps[] = { ShadowResourceViewDescriptorHeap.Get() };
-	mCoreGraphics->GetGraphicsCommandList()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), mCoreGraphics->GetGraphicsCommandList());
+	ICoreGraphicsService->GetGraphicsCommandList()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), ICoreGraphicsService->GetGraphicsCommandList());
 
-	CurrFrameResource->FrameResourceFenceCount = mCoreGraphics->EndScene();
+	CurrFrameResource->FrameResourceFenceCount = ICoreGraphicsService->EndScene();
 }
 
 void Crate::UpdateMaterialCBs(const CoreTimer& gt)
@@ -197,7 +197,7 @@ void Crate::BuildRootSignature()
 	}
 	ExceptionFuse(hr);
 
-	ExceptionFuse(mCoreGraphics->GetDeviceControl()->CreateRootSignature(
+	ExceptionFuse(ICoreGraphicsService->GetDeviceControl()->CreateRootSignature(
 		0,
 		serializedRootSig->GetBufferPointer(),
 		serializedRootSig->GetBufferSize(),
@@ -207,8 +207,8 @@ void Crate::BuildRootSignature()
 
 void Crate::OnInitialize()
 {
-	mCoreGraphics->GetGraphicsCommandList()->Reset(mCoreGraphics->GetEngineCommandAllocator(), nullptr);
-	mCbvSrvDescriptorSize =mCoreGraphics->GetDeviceControl()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	ICoreGraphicsService->GetGraphicsCommandList()->Reset(ICoreGraphicsService->GetEngineCommandAllocator(), nullptr);
+	mCbvSrvDescriptorSize =ICoreGraphicsService->GetDeviceControl()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	LoadTextures();
 	BuildRootSignature();
 	BuildLocalDescriptorHeap();
@@ -220,11 +220,11 @@ void Crate::OnInitialize()
 	BuildPSOs();
 	BuilduserInterface();
 
-	ExceptionFuse(mCoreGraphics->GetGraphicsCommandList()->Close());
-	ID3D12CommandList* cmdsLists[] = { mCoreGraphics->GetGraphicsCommandList() };
-	mCoreGraphics->GetEngineCommandQueue()->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+	ExceptionFuse(ICoreGraphicsService->GetGraphicsCommandList()->Close());
+	ID3D12CommandList* cmdsLists[] = { ICoreGraphicsService->GetGraphicsCommandList() };
+	ICoreGraphicsService->GetEngineCommandQueue()->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
-	mCoreGraphics->FlushCommandQueue();
+	ICoreGraphicsService->FlushCommandQueue();
 }
 
 void Crate::BuildPSOs()
@@ -253,11 +253,11 @@ void Crate::BuildPSOs()
 	opaquePsoDesc.SampleMask = UINT_MAX;
 	opaquePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	opaquePsoDesc.NumRenderTargets = 1;
-	opaquePsoDesc.RTVFormats[0] = mCoreGraphics->GetBackBufferFormat();
-	opaquePsoDesc.SampleDesc.Count = mCoreGraphics->GetMsaaState() ? 4 : 1;
-	opaquePsoDesc.SampleDesc.Quality = mCoreGraphics->GetMsaaState() ? (mCoreGraphics->GetMsaaQuality() - 1) : 0;
-	opaquePsoDesc.DSVFormat = mCoreGraphics->GetDepthStencilFormat();
-	ExceptionFuse(mCoreGraphics->GetDeviceControl()->CreateGraphicsPipelineState(&opaquePsoDesc, IID_PPV_ARGS(&mOpaquePSO)));
+	opaquePsoDesc.RTVFormats[0] = ICoreGraphicsService->GetBackBufferFormat();
+	opaquePsoDesc.SampleDesc.Count = ICoreGraphicsService->GetMsaaState() ? 4 : 1;
+	opaquePsoDesc.SampleDesc.Quality = ICoreGraphicsService->GetMsaaState() ? (ICoreGraphicsService->GetMsaaQuality() - 1) : 0;
+	opaquePsoDesc.DSVFormat = ICoreGraphicsService->GetDepthStencilFormat();
+	ExceptionFuse(ICoreGraphicsService->GetDeviceControl()->CreateGraphicsPipelineState(&opaquePsoDesc, IID_PPV_ARGS(&mOpaquePSO)));
 }
 
 void Crate::BuildRenderItems()
@@ -324,7 +324,7 @@ void Crate::BuildFrameResurces()
 {
 	for (int i = 0; i < gNumFrameResources; ++i)
 	{
-		FrameResources.push_back(std::make_unique<FrameResource>(mCoreGraphics->GetDeviceControl(),
+		FrameResources.push_back(std::make_unique<FrameResource>(ICoreGraphicsService->GetDeviceControl(),
 			1, (UINT)mAllRitems.size(), (UINT)mMaterials.size()));
 	}
 }
@@ -334,8 +334,8 @@ void Crate::LoadTextures()
 	auto woodCrateTex = std::make_unique<Texture>();
 	woodCrateTex->Name = "woodCrateTex";
 	woodCrateTex->Filename = L"Textures/robo.dds";
-	ExceptionFuse(DirectX::CreateDDSTextureFromFile12(mCoreGraphics->GetDeviceControl(),
-		mCoreGraphics->GetGraphicsCommandList(), woodCrateTex->Filename.c_str(),
+	ExceptionFuse(DirectX::CreateDDSTextureFromFile12(ICoreGraphicsService->GetDeviceControl(),
+		ICoreGraphicsService->GetGraphicsCommandList(), woodCrateTex->Filename.c_str(),
 		woodCrateTex->Resource, woodCrateTex->UploadHeap));
 
 	mTextures[woodCrateTex->Name] = std::move(woodCrateTex);
@@ -389,11 +389,11 @@ void Crate::BuildShapeGeometry()
 	ExceptionFuse(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
 	CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
 
-	geo->VertexBufferGPU = CoreUtil::CreateDefaultBuffer(mCoreGraphics->GetGraphicsCommandList(), 
-		mCoreGraphics->GetDeviceControl(), vbByteSize, vertices.data(), geo->VertexBufferUploader);
+	geo->VertexBufferGPU = CoreUtil::CreateDefaultBuffer(ICoreGraphicsService->GetGraphicsCommandList(), 
+		ICoreGraphicsService->GetDeviceControl(), vbByteSize, vertices.data(), geo->VertexBufferUploader);
 
-	geo->IndexBufferGPU = CoreUtil::CreateDefaultBuffer(mCoreGraphics->GetGraphicsCommandList(),
-		mCoreGraphics->GetDeviceControl(), ibByteSize, indices.data(), geo->IndexBufferUploader);
+	geo->IndexBufferGPU = CoreUtil::CreateDefaultBuffer(ICoreGraphicsService->GetGraphicsCommandList(),
+		ICoreGraphicsService->GetDeviceControl(), ibByteSize, indices.data(), geo->IndexBufferUploader);
 
 	geo->VertexByteStride = sizeof(Vertex);
 	geo->VertexBufferByteSize = vbByteSize;
@@ -424,13 +424,13 @@ void Crate::BuildLocalDescriptorHeap()
 	mSrvDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	mSrvDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	mSrvDesc.NumDescriptors = 1;
-	ExceptionFuse(mCoreGraphics->GetDeviceControl()->CreateDescriptorHeap(&mSrvDesc, IID_PPV_ARGS(ShadowResourceViewDescriptorHeap.GetAddressOf())));
+	ExceptionFuse(ICoreGraphicsService->GetDeviceControl()->CreateDescriptorHeap(&mSrvDesc, IID_PPV_ARGS(ShadowResourceViewDescriptorHeap.GetAddressOf())));
 
 	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
 	srvHeapDesc.NumDescriptors = 1;
 	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	ExceptionFuse(mCoreGraphics->GetDeviceControl()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvDescriptorHeap)));
+	ExceptionFuse(ICoreGraphicsService->GetDeviceControl()->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvDescriptorHeap)));
 
 	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -440,7 +440,7 @@ void Crate::BuildLocalDescriptorHeap()
 	srvDesc.Texture2D.MostDetailedMip = 0;
 	srvDesc.Texture2D.MipLevels = mTextures["woodCrateTex"]->Resource->GetDesc().MipLevels;
 	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-	mCoreGraphics->GetDeviceControl()->CreateShaderResourceView(mTextures["woodCrateTex"]->Resource.Get(), &srvDesc, hDescriptor);
+	ICoreGraphicsService->GetDeviceControl()->CreateShaderResourceView(mTextures["woodCrateTex"]->Resource.Get(), &srvDesc, hDescriptor);
 
 }
 
@@ -487,7 +487,7 @@ void Crate::BuilduserInterface()
 	ImGui::StyleColorsDark();
 
 	ImGui_ImplWin32_Init(MainHwnd);
-	ImGui_ImplDX12_Init(mCoreGraphics->GetDeviceControl(), 3,
+	ImGui_ImplDX12_Init(ICoreGraphicsService->GetDeviceControl(), 3,
 		DXGI_FORMAT_R8G8B8A8_UNORM, ShadowResourceViewDescriptorHeap.Get(),
 		ShadowResourceViewDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
 		ShadowResourceViewDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
