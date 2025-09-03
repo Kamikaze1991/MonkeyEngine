@@ -58,17 +58,16 @@ public:
 	ID3D12Resource* GetCurrentBackBuffer() const override;
 	ID3D12Resource* GetDepthStencilBuffer() const override;
 
-	D3D12_VIEWPORT GetViewPort()const override;
-	D3D12_RECT GetScissorRect()const override;
-
-	int SyncFenceCount() override;
 	ID3D12Device* GetDeviceControl()const override;
 
 	int GetCurrentBufferIndex()const;
-	virtual DXGI_FORMAT GetBackBufferFormat() const override;
-	virtual DXGI_FORMAT GetDepthStencilFormat() const override;
-	virtual int GetMsaaState() const override;
-	virtual int GetMsaaQuality() const override;
+	DXGI_FORMAT GetBackBufferFormat() const override;
+	DXGI_FORMAT GetDepthStencilFormat() const override;
+	int GetMsaaState() const override;
+	int GetMsaaQuality() const override;
+
+	void BeginScene(ID3D12CommandAllocator* commandAllocator, ID3D12PipelineState* pipelineState, const float* clearColor) const override;
+	int EndScene() override;
 
 private:
 

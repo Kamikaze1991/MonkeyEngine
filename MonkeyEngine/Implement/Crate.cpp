@@ -25,48 +25,21 @@ void Crate::OnRender()
 void Crate::PopulateCommands()
 {
 	auto mCurrCmd = CurrFrameResource->FrameResourceCommandAllocator;
-	mCurrCmd->Reset();
-	mCoreGraphics->GetGraphicsCommandList()->Reset(mCurrCmd.Get(), mOpaquePSO.Get());
-	D3D12_VIEWPORT localViewPort = mCoreGraphics->GetViewPort();
-	D3D12_RECT localSissorRect = mCoreGraphics->GetScissorRect();
-	mCoreGraphics->GetGraphicsCommandList()->RSSetViewports(1, &localViewPort);
-	mCoreGraphics->GetGraphicsCommandList()->RSSetScissorRects(1, &localSissorRect);
-	D3D12_RESOURCE_BARRIER rbInitial = CD3DX12_RESOURCE_BARRIER::Transition(mCoreGraphics->GetCurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-	mCoreGraphics->GetGraphicsCommandList()->ResourceBarrier(1, &rbInitial);
-	float clearColor[] = { ClearColor.x/ ClearColor.w,ClearColor.y / ClearColor.w, ClearColor.z / ClearColor.w, ClearColor.w };
-	mCoreGraphics->GetGraphicsCommandList()->ClearRenderTargetView(mCoreGraphics->CurrentBackBufferView(), clearColor, 0, nullptr);
-	mCoreGraphics->GetGraphicsCommandList()->ClearDepthStencilView(mCoreGraphics->DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-	D3D12_CPU_DESCRIPTOR_HANDLE currBackBuffer = mCoreGraphics->CurrentBackBufferView();
-	D3D12_CPU_DESCRIPTOR_HANDLE currDepthStencil = mCoreGraphics->DepthStencilView();
-	mCoreGraphics->GetGraphicsCommandList()->OMSetRenderTargets(1, &currBackBuffer, true, &currDepthStencil);
+	float clearColor[] = { ClearColor.x / ClearColor.w,ClearColor.y / ClearColor.w, ClearColor.z / ClearColor.w, ClearColor.w };
+
+	mCoreGraphics->BeginScene(mCurrCmd.Get(), mOpaquePSO.Get(), clearColor);
 	
 	ID3D12DescriptorHeap* descriptorHeapsMain[] = { mSrvDescriptorHeap.Get() };
 	mCoreGraphics->GetGraphicsCommandList()->SetDescriptorHeaps(_countof(descriptorHeapsMain), descriptorHeapsMain);
 	mCoreGraphics->GetGraphicsCommandList()->SetGraphicsRootSignature(mRootSignature.Get());
-
 	auto passCB = CurrFrameResource->PassCB->Resource();
 	mCoreGraphics->GetGraphicsCommandList()->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 	DrawRenderItems(mCoreGraphics->GetGraphicsCommandList(), mOpaqueRitems);
-
-	//auto passCB = CurrFrameResource->PassCB->Resource();
-
-	
-
 	ID3D12DescriptorHeap* descriptorHeaps[] = { ShadowResourceViewDescriptorHeap.Get() };
 	mCoreGraphics->GetGraphicsCommandList()->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-
-	//GetEngineGraphicsCommandList()->SetDescriptorHeaps(1, &mCoreGraphics->mCbvSrvUavHeap);
 	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), mCoreGraphics->GetGraphicsCommandList());
-	rbInitial = CD3DX12_RESOURCE_BARRIER::Transition(mCoreGraphics->GetCurrentBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-	mCoreGraphics->GetGraphicsCommandList()->ResourceBarrier(1, &rbInitial);
-	mCoreGraphics->GetGraphicsCommandList()->Close();
 
-	ID3D12CommandList* mList[] = { mCoreGraphics->GetGraphicsCommandList() };
-	mCoreGraphics->GetEngineCommandQueue()->ExecuteCommandLists(_countof(mList), mList);
-	mCoreGraphics->GetEngineSwapChain()->Present(1, 0);
-	
-	CurrFrameResource->FrameResourceFenceCount = mCoreGraphics->SyncFenceCount();
-	
+	CurrFrameResource->FrameResourceFenceCount = mCoreGraphics->EndScene();
 }
 
 void Crate::UpdateMaterialCBs(const CoreTimer& gt)

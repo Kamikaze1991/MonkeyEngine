@@ -98,6 +98,37 @@ int CoreGraphics::GetMsaaQuality() const
 	return m4xMsaaQuality;
 }
 
+void CoreGraphics::BeginScene(ID3D12CommandAllocator* commandAllocator, ID3D12PipelineState* pipelineState, const float* clearColor) const
+{
+	commandAllocator->Reset();
+	GraphicsCommandListControl->Reset(commandAllocator, pipelineState);
+
+	GraphicsCommandListControl->RSSetViewports(1, &ViewPort);
+	GraphicsCommandListControl->RSSetScissorRects(1, &ScissorRect);
+	D3D12_RESOURCE_BARRIER rbInitial = CD3DX12_RESOURCE_BARRIER::Transition(GetCurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	GraphicsCommandListControl->ResourceBarrier(1, &rbInitial);
+	GraphicsCommandListControl->ClearRenderTargetView(CurrentBackBufferView(), clearColor, 0, nullptr);
+	GraphicsCommandListControl->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+	D3D12_CPU_DESCRIPTOR_HANDLE currBackBuffer = CurrentBackBufferView();
+	D3D12_CPU_DESCRIPTOR_HANDLE currDepthStencil = DepthStencilView();
+	GraphicsCommandListControl->OMSetRenderTargets(1, &currBackBuffer, true, &currDepthStencil);
+}
+
+int CoreGraphics::EndScene()
+{
+	D3D12_RESOURCE_BARRIER rbInitial = CD3DX12_RESOURCE_BARRIER::Transition(GetCurrentBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+	GraphicsCommandListControl->ResourceBarrier(1, &rbInitial);
+	GraphicsCommandListControl->Close();
+
+	ID3D12CommandList* mList[] = { GraphicsCommandListControl.Get()};
+	CommandQueueControl->ExecuteCommandLists(_countof(mList), mList);
+	SwapChainControl->Present(1, 0);
+	
+	++FenceControlCount;
+	CommandQueueControl->Signal(FenceControl.Get(), FenceControlCount);
+	return FenceControlCount;
+}
+
 void CoreGraphics::OnReset(int clientWidth, int clientHeight)
 {
 	if (!DeviceControl)
@@ -195,23 +226,6 @@ ID3D12Resource* CoreGraphics::GetCurrentBackBuffer() const
 ID3D12Resource* CoreGraphics::GetDepthStencilBuffer() const
 {
 	return nullptr;
-}
-
-D3D12_VIEWPORT CoreGraphics::GetViewPort() const
-{
-	return ViewPort;
-}
-
-D3D12_RECT CoreGraphics::GetScissorRect() const
-{
-	return ScissorRect;
-}
-
-int CoreGraphics::SyncFenceCount()
-{
-	++FenceControlCount;
-	CommandQueueControl->Signal(FenceControl.Get(), FenceControlCount);
-	return FenceControlCount;
 }
 
 ID3D12Device* CoreGraphics::GetDeviceControl() const
