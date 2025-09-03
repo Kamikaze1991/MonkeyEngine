@@ -9,12 +9,10 @@
 
 class CoreEngine {
 protected:
-
-	CoreGraphics* mCoreGraphics = nullptr;
-	CoreTimer* mTimer = nullptr;
+	std::unique_ptr<ICoreGraphics> mCoreGraphics = std::make_unique<CoreGraphics>();
+	std::unique_ptr<CoreTimer> mTimer = nullptr;
 	ImGuiIO *io=nullptr;
 	HWND MainHwnd;
-	int CurrFrame = 0;
 	int FrameCount = 2;
 	bool FullScreen = true;
 #pragma region variables imgui
@@ -33,19 +31,15 @@ public:
 	CoreEngine(int width, int height, bool fullscreen);
 	virtual void InitDirect3D(HWND mHwnd);
 	void ResetEngine();
-	virtual void Loop();
+	virtual void Loop(const CoreTimer& gt);
 	virtual void OnInitialize()=0;
 	virtual void OnInitializeUi() = 0;
-	virtual void OnUpdate()=0;
+	virtual void OnUpdate(const CoreTimer& gt) =0;
 	virtual void OnRender()=0;
 
 	//engine helpers
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> GetEngineGraphicsCommandList();
-	Microsoft::WRL::ComPtr<ID3D12CommandQueue> GetEngineCommandQueue();
-	Microsoft::WRL::ComPtr<IDXGISwapChain3> GetEngineSwapChain();
 
-	CoreGraphics* GetCoreGraphics();
-	CoreTimer* GetCoreTimer();
+	CoreTimer& GetCoreTimer();
 
 	void WindowRedimention(int width, int height);
 };

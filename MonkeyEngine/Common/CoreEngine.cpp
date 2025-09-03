@@ -2,6 +2,15 @@
 
 CoreEngine::~CoreEngine()
 {
+	// Libera recursos propios
+	mTimer.reset();         // si fue inicializado
+	mCoreGraphics.reset();  // se libera automáticamente, pero puedes hacerlo explícito
+
+	// ImGui cleanup (si tú lo inicializaste)
+	ImGui_ImplDX12_Shutdown();
+	ImGui::DestroyContext();
+
+	io = nullptr;
 }
 
 CoreEngine::CoreEngine(int width, int height, bool fullscreen):ClientWidth(width),ClientHeight(height),FullScreen(fullscreen)
@@ -11,8 +20,7 @@ CoreEngine::CoreEngine(int width, int height, bool fullscreen):ClientWidth(width
 
 void CoreEngine::InitDirect3D(HWND mHwnd)
 {
-	mCoreGraphics = new CoreGraphics();
-	mTimer = new CoreTimer();
+	mTimer = std::make_unique<CoreTimer>();
 	mCoreGraphics->InitDirect3D(mHwnd, ClientWidth, ClientHeight);
 	MainHwnd = mHwnd;
 	OnInitialize();
@@ -21,40 +29,18 @@ void CoreEngine::InitDirect3D(HWND mHwnd)
 void CoreEngine::ResetEngine()
 {
 	mCoreGraphics->OnReset(ClientWidth, ClientHeight);
-	CurrFrame = 0;
 }
 
-Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> CoreEngine::GetEngineGraphicsCommandList()
-{
-	return mCoreGraphics->GraphicsCommandListControl;
-}
-
-Microsoft::WRL::ComPtr<ID3D12CommandQueue> CoreEngine::GetEngineCommandQueue()
-{
-	return mCoreGraphics->CommandQueueControl;
-}
-
-Microsoft::WRL::ComPtr<IDXGISwapChain3> CoreEngine::GetEngineSwapChain()
-{
-	return mCoreGraphics->SwapChainControl;
-}
-
-void CoreEngine::Loop()
+void CoreEngine::Loop(const CoreTimer& gt)
 {
 	OnInitializeUi();
-	OnUpdate();
+	OnUpdate(gt);
 	OnRender();
-	CurrFrame = (CurrFrame + 1) % FrameCount;
 }
 
-CoreGraphics* CoreEngine::GetCoreGraphics()
+CoreTimer& CoreEngine::GetCoreTimer()
 {
-	return mCoreGraphics;
-}
-
-CoreTimer* CoreEngine::GetCoreTimer()
-{
-	return mTimer;
+	return *mTimer;
 }
 
 void CoreEngine::WindowRedimention(int width, int height)
