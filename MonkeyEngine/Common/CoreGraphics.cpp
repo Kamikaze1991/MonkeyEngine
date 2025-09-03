@@ -78,6 +78,26 @@ int CoreGraphics::GetCurrentBufferIndex()const
 	return SwapChainControl->GetCurrentBackBufferIndex();
 }
 
+DXGI_FORMAT CoreGraphics::GetBackBufferFormat() const
+{
+	return mBackBufferFormat;
+}
+
+DXGI_FORMAT CoreGraphics::GetDepthStencilFormat() const
+{
+	return mDepthStencilFormat;
+}
+
+int CoreGraphics::GetMsaaState() const
+{
+	return m4xMsaaState;
+}
+
+int CoreGraphics::GetMsaaQuality() const
+{
+	return m4xMsaaQuality;
+}
+
 void CoreGraphics::OnReset(int clientWidth, int clientHeight)
 {
 	if (!DeviceControl)
@@ -87,7 +107,7 @@ void CoreGraphics::OnReset(int clientWidth, int clientHeight)
 	ExceptionFuse(GraphicsCommandListControl->Reset(CommandAllocatorControl.Get(), nullptr));
 	//reset buffers
 	for (int i = 0; i < FrameCount; i++)
-		RenderTargetBuffer[i].Reset();
+		BackBuffer[i].Reset();
 	DepthStencilBuffer.Reset();
 	//resize swap chain
 	DXGI_SWAP_CHAIN_DESC sd = {};
@@ -96,8 +116,8 @@ void CoreGraphics::OnReset(int clientWidth, int clientHeight)
 	//rebuild buffers
 	CD3DX12_CPU_DESCRIPTOR_HANDLE mRtvHandle(RenderTargetViewHeap->GetCPUDescriptorHandleForHeapStart());
 	for (int i = 0; i < FrameCount; i++) {
-		ExceptionFuse(SwapChainControl->GetBuffer(i, IID_PPV_ARGS(RenderTargetBuffer[i].GetAddressOf())));
-		DeviceControl->CreateRenderTargetView(RenderTargetBuffer[i].Get(), nullptr, mRtvHandle);
+		ExceptionFuse(SwapChainControl->GetBuffer(i, IID_PPV_ARGS(BackBuffer[i].GetAddressOf())));
+		DeviceControl->CreateRenderTargetView(BackBuffer[i].Get(), nullptr, mRtvHandle);
 		mRtvHandle.Offset(1, RenderTargetViewHeapSize);
 	}
 
@@ -145,6 +165,58 @@ D3D12_CPU_DESCRIPTOR_HANDLE CoreGraphics::CurrentBackBufferView() const
 D3D12_CPU_DESCRIPTOR_HANDLE CoreGraphics::DepthStencilView() const
 {
 	return DepthStencilViewHeap->GetCPUDescriptorHandleForHeapStart();
+}
+
+ID3D12GraphicsCommandList* CoreGraphics::GetGraphicsCommandList() const
+{
+	return GraphicsCommandListControl.Get();
+}
+
+ID3D12CommandAllocator* CoreGraphics::GetEngineCommandAllocator() const
+{
+	return CommandAllocatorControl.Get();
+}
+
+ID3D12CommandQueue* CoreGraphics::GetEngineCommandQueue() const
+{
+	return CommandQueueControl.Get();
+}
+
+IDXGISwapChain3* CoreGraphics::GetEngineSwapChain() const
+{
+	return SwapChainControl.Get();
+}
+
+ID3D12Resource* CoreGraphics::GetCurrentBackBuffer() const
+{
+	return BackBuffer[SwapChainControl->GetCurrentBackBufferIndex()].Get();
+}
+
+ID3D12Resource* CoreGraphics::GetDepthStencilBuffer() const
+{
+	return nullptr;
+}
+
+D3D12_VIEWPORT CoreGraphics::GetViewPort() const
+{
+	return ViewPort;
+}
+
+D3D12_RECT CoreGraphics::GetScissorRect() const
+{
+	return ScissorRect;
+}
+
+int CoreGraphics::SyncFenceCount()
+{
+	++FenceControlCount;
+	CommandQueueControl->Signal(FenceControl.Get(), FenceControlCount);
+	return FenceControlCount;
+}
+
+ID3D12Device* CoreGraphics::GetDeviceControl() const
+{
+	return DeviceControl.Get();
 }
 
 /// <summary>

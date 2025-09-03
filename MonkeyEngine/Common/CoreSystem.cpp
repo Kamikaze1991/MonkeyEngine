@@ -88,8 +88,7 @@ LRESULT CoreSystem::WindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
         return 0;
     case WM_SIZE:
         MainCoreEngine->WindowRedimention(LOWORD(lParam), HIWORD(lParam));    
-        if (MainCoreEngine->GetCoreGraphics())
-            MainCoreEngine->ResetEngine();     
+        MainCoreEngine->ResetEngine();     
         return 0;
     case WM_EXITSIZEMOVE:
         MainCoreEngine->ResetEngine();

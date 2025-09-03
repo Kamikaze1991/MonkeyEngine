@@ -31,31 +31,11 @@ void CoreEngine::ResetEngine()
 	mCoreGraphics->OnReset(ClientWidth, ClientHeight);
 }
 
-Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> CoreEngine::GetEngineGraphicsCommandList()
-{
-	return mCoreGraphics->GraphicsCommandListControl;
-}
-
-Microsoft::WRL::ComPtr<ID3D12CommandQueue> CoreEngine::GetEngineCommandQueue()
-{
-	return mCoreGraphics->CommandQueueControl;
-}
-
-Microsoft::WRL::ComPtr<IDXGISwapChain3> CoreEngine::GetEngineSwapChain()
-{
-	return mCoreGraphics->SwapChainControl;
-}
-
 void CoreEngine::Loop(const CoreTimer& gt)
 {
 	OnInitializeUi();
 	OnUpdate(gt);
 	OnRender();
-}
-
-CoreGraphics* CoreEngine::GetCoreGraphics()
-{
-	return mCoreGraphics.get();
 }
 
 CoreTimer& CoreEngine::GetCoreTimer()

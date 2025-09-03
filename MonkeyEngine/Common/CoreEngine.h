@@ -9,7 +9,7 @@
 
 class CoreEngine {
 protected:
-	std::unique_ptr<CoreGraphics> mCoreGraphics = std::make_unique<CoreGraphics>();
+	std::unique_ptr<ICoreGraphics> mCoreGraphics = std::make_unique<CoreGraphics>();
 	std::unique_ptr<CoreTimer> mTimer = nullptr;
 	ImGuiIO *io=nullptr;
 	HWND MainHwnd;
@@ -38,11 +38,7 @@ public:
 	virtual void OnRender()=0;
 
 	//engine helpers
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> GetEngineGraphicsCommandList();
-	Microsoft::WRL::ComPtr<ID3D12CommandQueue> GetEngineCommandQueue();
-	Microsoft::WRL::ComPtr<IDXGISwapChain3> GetEngineSwapChain();
 
-	CoreGraphics* GetCoreGraphics();
 	CoreTimer& GetCoreTimer();
 
 	void WindowRedimention(int width, int height);
