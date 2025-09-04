@@ -33,6 +33,14 @@ public:
     virtual int GetMsaaState() const = 0;
     virtual int GetMsaaQuality() const = 0;
 
+    virtual void CreatePso(
+        ComPtr<ID3D12PipelineState>& pipelinePso,
+        const std::string& nombreVS,
+        const std::string& nombrePS,
+        const std::vector<D3D12_INPUT_ELEMENT_DESC>& inputLayout,
+        const ComPtr<ID3D12RootSignature>& rootSignature,
+        const std::unordered_map<std::string, ComPtr<ID3DBlob>>& mShaders) const = 0;
+
 };
 
 #endif

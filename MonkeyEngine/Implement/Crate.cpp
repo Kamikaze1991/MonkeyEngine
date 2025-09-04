@@ -229,35 +229,7 @@ void Crate::OnInitialize()
 
 void Crate::BuildPSOs()
 {
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc;
-
-	//
-	// PSO for opaque objects.
-	//
-	ZeroMemory(&opaquePsoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-	opaquePsoDesc.InputLayout = { mInputLayout.data(), (UINT)mInputLayout.size() };
-	opaquePsoDesc.pRootSignature = mRootSignature.Get();
-	opaquePsoDesc.VS =
-	{
-		reinterpret_cast<BYTE*>(mShaders["standardVS"]->GetBufferPointer()),
-		mShaders["standardVS"]->GetBufferSize()
-	};
-	opaquePsoDesc.PS =
-	{
-		reinterpret_cast<BYTE*>(mShaders["opaquePS"]->GetBufferPointer()),
-		mShaders["opaquePS"]->GetBufferSize()
-	};
-	opaquePsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	opaquePsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	opaquePsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	opaquePsoDesc.SampleMask = UINT_MAX;
-	opaquePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	opaquePsoDesc.NumRenderTargets = 1;
-	opaquePsoDesc.RTVFormats[0] = ICoreGraphicsService->GetBackBufferFormat();
-	opaquePsoDesc.SampleDesc.Count = ICoreGraphicsService->GetMsaaState() ? 4 : 1;
-	opaquePsoDesc.SampleDesc.Quality = ICoreGraphicsService->GetMsaaState() ? (ICoreGraphicsService->GetMsaaQuality() - 1) : 0;
-	opaquePsoDesc.DSVFormat = ICoreGraphicsService->GetDepthStencilFormat();
-	ExceptionFuse(ICoreGraphicsService->GetDeviceControl()->CreateGraphicsPipelineState(&opaquePsoDesc, IID_PPV_ARGS(&mOpaquePSO)));
+	ICoreGraphicsService->CreatePso(mOpaquePSO, "standardVS", "opaquePS", mInputLayout, mRootSignature, mShaders);	
 }
 
 void Crate::BuildRenderItems()

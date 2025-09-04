@@ -129,6 +129,40 @@ int CoreGraphics::EndScene()
 	return FenceControlCount;
 }
 
+void CoreGraphics::CreatePso(ComPtr<ID3D12PipelineState>& pipelinePso,
+	const std::string& nombreVS,
+	const std::string& nombrePS,
+	const std::vector<D3D12_INPUT_ELEMENT_DESC>& inputLayout,
+	const ComPtr<ID3D12RootSignature>& rootSignature,
+	const std::unordered_map<std::string, ComPtr<ID3DBlob>>& mShaders) const
+{
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc;
+	ZeroMemory(&opaquePsoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+	opaquePsoDesc.InputLayout = { inputLayout.data(), (UINT)inputLayout.size() };
+	opaquePsoDesc.pRootSignature = rootSignature.Get();
+	opaquePsoDesc.VS =
+	{
+		reinterpret_cast<BYTE*>(mShaders.at(nombreVS)->GetBufferPointer()),
+		mShaders.at(nombreVS)->GetBufferSize()
+	};
+	opaquePsoDesc.PS =
+	{
+		reinterpret_cast<BYTE*>(mShaders.at(nombrePS)->GetBufferPointer()),
+		mShaders.at(nombrePS)->GetBufferSize()
+	};
+	opaquePsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	opaquePsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	opaquePsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	opaquePsoDesc.SampleMask = UINT_MAX;
+	opaquePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	opaquePsoDesc.NumRenderTargets = 1;
+	opaquePsoDesc.RTVFormats[0] = GetBackBufferFormat();
+	opaquePsoDesc.SampleDesc.Count = GetMsaaState() ? 4 : 1;
+	opaquePsoDesc.SampleDesc.Quality = GetMsaaState() ? (GetMsaaQuality() - 1) : 0;
+	opaquePsoDesc.DSVFormat = GetDepthStencilFormat();
+	ExceptionFuse(DeviceControl->CreateGraphicsPipelineState(&opaquePsoDesc, IID_PPV_ARGS(&pipelinePso)));
+}
+
 void CoreGraphics::OnReset(int clientWidth, int clientHeight)
 {
 	if (!DeviceControl)
