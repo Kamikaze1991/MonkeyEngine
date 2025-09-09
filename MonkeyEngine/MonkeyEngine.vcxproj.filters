@@ -45,10 +45,19 @@
       <Filter>Common\ThirdParty</Filter>
     </ClCompile>
     <ClCompile Include="Implement\Crate.cpp" />
+    <ClCompile Include="Common\PipelineState\CorePSO.cpp">
+      <Filter>Common\PipelineState</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\PipelineState\GraphicsPSO.cpp">
+      <Filter>Common\PipelineState</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Common">
       <UniqueIdentifier>{366fe7a7-1511-4941-88b2-b5b7120d8034}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\PipelineState">
+      <UniqueIdentifier>{f5fb1671-4b41-449b-b8c6-fbd48fd7178e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Common\ThirdParty">
       <UniqueIdentifier>{a00bd06a-dc0e-4674-a877-59d90249fa78}</UniqueIdentifier>
@@ -112,6 +121,13 @@
     </ClInclude>
     <ClInclude Include="Common\ThirdParty\DDSTextureLoader.h">
       <Filter>Common\ThirdParty</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\ICoreGraphics.h" />
+    <ClInclude Include="Common\PipelineState\CorePSO.h">
+      <Filter>Common\PipelineState</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\PipelineState\GraphicsPSO.h">
+      <Filter>Common\PipelineState</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

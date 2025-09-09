@@ -101,8 +101,8 @@ int CoreGraphics::GetMsaaQuality() const
 void CoreGraphics::BeginScene(ID3D12CommandAllocator* commandAllocator, ID3D12PipelineState* pipelineState, const float* clearColor) const
 {
 	commandAllocator->Reset();
-	GraphicsCommandListControl->Reset(commandAllocator, pipelineState);
-
+	GraphicsCommandListControl->Reset(commandAllocator, nullptr);
+	GraphicsCommandListControl->SetPipelineState(pipelineState);
 	GraphicsCommandListControl->RSSetViewports(1, &ViewPort);
 	GraphicsCommandListControl->RSSetScissorRects(1, &ScissorRect);
 	D3D12_RESOURCE_BARRIER rbInitial = CD3DX12_RESOURCE_BARRIER::Transition(GetCurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);

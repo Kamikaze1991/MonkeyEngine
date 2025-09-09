@@ -83,6 +83,8 @@
     <ClCompile Include="Common\CoreException.cpp" />
     <ClCompile Include="Common\CoreTimer.cpp" />
     <ClCompile Include="Common\CoreUtil.cpp" />
+    <ClCompile Include="Common\PipelineState\CorePSO.cpp" />
+    <ClCompile Include="Common\PipelineState\GraphicsPSO.cpp" />
     <ClCompile Include="Common\ThirdParty\DDSTextureLoader.cpp" />
     <ClCompile Include="Common\ThirdParty\imguibackends\imgui_impl_dx12.cpp" />
     <ClCompile Include="Common\ThirdParty\imguibackends\imgui_impl_win32.cpp" />
@@ -104,6 +106,8 @@
     <ClInclude Include="Common\CoreUtil.h" />
     <ClInclude Include="Common\CoreException.h" />
     <ClInclude Include="Common\ICoreGraphics.h" />
+    <ClInclude Include="Common\PipelineState\GraphicsPSO.h" />
+    <ClInclude Include="Common\PipelineState\CorePSO.h" />
     <ClInclude Include="Common\ThirdParty\d3dx12.h" />
     <ClInclude Include="Common\CoreUploadBuffer.h" />
     <ClInclude Include="Common\ThirdParty\DDSTextureLoader.h" />

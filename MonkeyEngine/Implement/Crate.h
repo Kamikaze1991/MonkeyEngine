@@ -3,6 +3,7 @@
 #include "../Common/CoreUtil.h"
 #include "../Common/CoreEngine.h"
 #include "FrameResource.h"
+#include "../Common/PipelineState/GraphicsPSO.h"
 
 const int gNumFrameResources = 4;
 struct Texture
@@ -131,6 +132,8 @@ private:
 	std::unordered_map<std::string, ComPtr<ID3DBlob>> mShaders;
 	std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
 	UINT mCbvSrvDescriptorSize = 0;
+
+	GraphicsPSO DefaultPPSO = { (L"Sponza: Depth PSO") };
 
 
 	std::vector<std::unique_ptr<FrameResource>> FrameResources;
