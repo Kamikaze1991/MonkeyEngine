@@ -140,11 +140,7 @@ void CoreGraphics::CreatePso(ComPtr<ID3D12PipelineState>& pipelinePso,
 	ZeroMemory(&opaquePsoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
 	opaquePsoDesc.InputLayout = { inputLayout.data(), (UINT)inputLayout.size() };
 	opaquePsoDesc.pRootSignature = rootSignature.Get();
-	opaquePsoDesc.VS =
-	{
-		reinterpret_cast<BYTE*>(mShaders.at(nombreVS)->GetBufferPointer()),
-		mShaders.at(nombreVS)->GetBufferSize()
-	};
+	opaquePsoDesc.VS = CD3DX12_SHADER_BYTECODE(reinterpret_cast<BYTE*>(mShaders.at(nombreVS)->GetBufferPointer()), mShaders.at(nombreVS)->GetBufferSize());
 	opaquePsoDesc.PS =
 	{
 		reinterpret_cast<BYTE*>(mShaders.at(nombrePS)->GetBufferPointer()),
