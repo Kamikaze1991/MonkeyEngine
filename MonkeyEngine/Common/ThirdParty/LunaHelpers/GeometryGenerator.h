@@ -20,7 +20,7 @@
 
 struct GVertex
 {
-	GVertex() {}
+	GVertex() : Normal({ 0.0f,0.0f,0.0f }), Position({ 0.0f,0.0f,0.0f }), TangentU({ 0.0f,0.0f,0.0f }), TexC({ 0.0f,0.0f }) {}
 	GVertex(
 		const DirectX::XMFLOAT3& p,
 		const DirectX::XMFLOAT3& n,

@@ -125,7 +125,6 @@ private:
 	std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
 	std::unordered_map<std::string, std::unique_ptr<Material>> mMaterials;
 	std::vector<RenderItem*> mOpaqueRitems;
-	ComPtr<ID3D12PipelineState> mOpaquePSO = nullptr;
 	std::vector<std::unique_ptr<RenderItem>> mAllRitems;
 	ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
 	ComPtr<ID3D12DescriptorHeap> mSrvDescriptorHeap = nullptr;

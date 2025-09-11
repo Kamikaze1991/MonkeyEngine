@@ -35,7 +35,7 @@ void GraphicsPSO::SetSampleMask(UINT SampleMask)
 
 void GraphicsPSO::SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE TopologyType)
 {
-    assert(TopologyType != D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED, "Can't draw with undefined topology");
+    assert(TopologyType != D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED);
     m_PSODesc.PrimitiveTopologyType = TopologyType;
 }
 
@@ -56,7 +56,7 @@ void GraphicsPSO::SetRenderTargetFormat(DXGI_FORMAT RTVFormat, DXGI_FORMAT DSVFo
 
 void GraphicsPSO::SetRenderTargetFormats(UINT NumRTVs, const DXGI_FORMAT* RTVFormats, DXGI_FORMAT DSVFormat, UINT MsaaCount, UINT MsaaQuality)
 {
-    assert(NumRTVs == 0 || RTVFormats != nullptr, "Null format array conflicts with non-zero length");
+    assert(NumRTVs == 0 || RTVFormats != nullptr);
     for (UINT i = 0; i < NumRTVs; ++i)
     {
         assert(RTVFormats[i] != DXGI_FORMAT_UNKNOWN);
@@ -74,9 +74,10 @@ void GraphicsPSO::SetInputLayout(UINT NumElements, const D3D12_INPUT_ELEMENT_DES
 {
     m_PSODesc.InputLayout.NumElements = NumElements;
 
-    if (NumElements > 0)
+    if (NumElements > 0 )
     {
         D3D12_INPUT_ELEMENT_DESC* NewElements = (D3D12_INPUT_ELEMENT_DESC*)malloc(sizeof(D3D12_INPUT_ELEMENT_DESC) * NumElements);
+        assert(NewElements != nullptr);
         memcpy(NewElements, pInputElementDescs, NumElements * sizeof(D3D12_INPUT_ELEMENT_DESC));
         m_InputLayouts.reset((const D3D12_INPUT_ELEMENT_DESC*)NewElements);
     }

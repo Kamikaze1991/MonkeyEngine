@@ -72,6 +72,13 @@ namespace Utility
 
 } // namespace Utility
 
+inline void AssertOrThrow(bool condition, const char* message)
+{
+    if (!condition)
+        throw std::runtime_error(message);
+}
+
+
 
 #define MaxLights 16
 

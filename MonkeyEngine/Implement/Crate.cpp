@@ -27,7 +27,7 @@ void Crate::PopulateCommands()
 	auto mCurrCmd = CurrFrameResource->FrameResourceCommandAllocator;
 	float clearColor[] = { ClearColor.x / ClearColor.w,ClearColor.y / ClearColor.w, ClearColor.z / ClearColor.w, ClearColor.w };
 
-	ICoreGraphicsService->BeginScene(mCurrCmd.Get(), mOpaquePSO.Get(), clearColor);
+	ICoreGraphicsService->BeginScene(mCurrCmd.Get(), DefaultPPSO.GetPipelineStateObject(), clearColor);
 	
 	ID3D12DescriptorHeap* descriptorHeapsMain[] = { mSrvDescriptorHeap.Get() };
 	ICoreGraphicsService->GetGraphicsCommandList()->SetDescriptorHeaps(_countof(descriptorHeapsMain), descriptorHeapsMain);
@@ -168,7 +168,7 @@ void Crate::BuildRootSignature()
 	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
 
 	// Root parameter can be a table, root descriptor or root constants.
-	CD3DX12_ROOT_PARAMETER slotRootParameter[4];
+	CD3DX12_ROOT_PARAMETER slotRootParameter[4] = {};
 
 	// Perfomance TIP: Order from most frequent to least frequent.
 	slotRootParameter[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
@@ -238,12 +238,17 @@ void Crate::BuildPSOs()
 
 	mShaders["standardVS"] = CoreUtil::CompileShader(L"Resources\\Shaders\\Default.hlsl", nullptr, "VS", "vs_5_0");
 	mShaders["opaquePS"] = CoreUtil::CompileShader(L"Resources\\Shaders\\Default.hlsl", nullptr, "PS", "ps_5_0");
-
-	ICoreGraphicsService->CreatePso(mOpaquePSO, "standardVS", "opaquePS", mInputLayout, mRootSignature, mShaders);
-
-	
-
-	
+	DefaultPPSO.SetInputLayout(std::size(mInputLayoutMain), mInputLayoutMain);
+	DefaultPPSO.SetRootSignature(mRootSignature);
+	DefaultPPSO.SetVertexShader(reinterpret_cast<BYTE*>(mShaders.at("standardVS")->GetBufferPointer()), mShaders.at("standardVS")->GetBufferSize());
+	DefaultPPSO.SetPixelShader(reinterpret_cast<BYTE*>(mShaders.at("opaquePS")->GetBufferPointer()), mShaders.at("opaquePS")->GetBufferSize());
+	DefaultPPSO.SetRasterizerState(CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT));
+	DefaultPPSO.SetBlendState(CD3DX12_BLEND_DESC(D3D12_DEFAULT));
+	DefaultPPSO.SetDepthStencilState(CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT));
+	DefaultPPSO.SetSampleMask(UINT_MAX);
+	DefaultPPSO.SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
+	DefaultPPSO.SetRenderTargetFormat(ICoreGraphicsService->GetBackBufferFormat(), ICoreGraphicsService->GetDepthStencilFormat());
+	DefaultPPSO.Finalize(ICoreGraphicsService->GetDeviceControl());
 }
 
 void Crate::BuildRenderItems()
